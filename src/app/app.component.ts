@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Component} from '@angular/core';
+import {ChuckSearchComponent} from './components/chuck-search/chuck-search.component';
+import {TitleComponent} from './components/title/title.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [ChuckSearchComponent, TitleComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
