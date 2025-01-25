@@ -43,7 +43,6 @@ jobs:
 
       - name: Build Docker image
         run: |
-          ls -lRt
           docker buildx build --platform linux/arm64 --tag ${{ env.IMAGE_NAME }}:${{ env.version }} .
 
         env:
