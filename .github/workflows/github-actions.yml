@@ -42,7 +42,9 @@ jobs:
           path: target
 
       - name: Build Docker image
-        run: docker buildx build --platform linux/arm64 --tag ${{ env.IMAGE_NAME }}:${{ env.version }} .
+        run: |
+          ls -lRt
+          docker buildx build --platform linux/arm64 --tag ${{ env.IMAGE_NAME }}:${{ env.version }} .
 
         env:
           DOCKER_BUILDKIT: 1
