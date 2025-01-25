@@ -1,0 +1,53 @@
+name: Chuck Norris FrontEnd action
+
+on: [push, pull_request]
+
+env:
+  IMAGE_NAME: 'leeson77/chuck-norris-frontend'
+  version: '1.0.0'
+
+jobs:
+  angular-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install node modules
+        run: npm install
+
+      - name: Build Angular app
+        run: ng build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist/front-chuck-norris/browser
+
+  build-docker:
+    needs: angular-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: target
+
+      - name: Build Docker image
+        run: docker buildx build --platform linux/arm64 --tag ${{ env.IMAGE_NAME }}:${{ env.version }} .
+
+        env:
+          DOCKER_BUILDKIT: 1
+
+      - name: Push Docker image
+        run: |
+          echo "${{ secrets.TOKEN_DOCKER_HUB }}" | docker login -u "${{ secrets.LOGIN_DOCKER_HUB }}" --password-stdin
+          docker push ${{ env.IMAGE_NAME }}:${{ env.version }}
