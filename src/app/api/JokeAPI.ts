@@ -10,14 +10,13 @@ import {Joke} from '../models/Joke';
 
 export class JokeAPI {
   #http = inject(HttpClient);
-  headers = {
+  #headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   }
-  url = 'http://localhost:8080/api/v1';
-  uri = '/jokes/getRandomJoke';
+  #uri = '/getRandomJoke';
 
   getRandomJoke(){
-    return this.#http.get(environment.apiURL + this.uri, {headers: this.headers}) as Observable<Joke>;
+    return this.#http.get(environment.apiURL + this.#uri, {headers: this.#headers}) as Observable<Joke>;
   }
 }
