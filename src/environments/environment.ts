@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiURL: 'https://leeson.sytes.net/api/jokes/v1'
+  apiURL: ' https://filhype.ovh/chuck-backend/api/jokes/v1/'
 };
