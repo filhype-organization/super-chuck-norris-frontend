@@ -1,6 +1,8 @@
-# FrontChuckNorris
+![Alt chuck](src/assets/Logo_Chuck_Norris2.png)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.12.
+# Chuck Norris Front
+
+All documentation is available at this place: https://filhype-organization.github.io/super-chuck-norris-doc/
 
 ## Development server
 
