@@ -1,33 +1,32 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable, switchMap} from 'rxjs';
 import {Joke} from '../models/Joke';
-
-
-
-interface AppConfig {
-  API_URL?: string; 
-}
-
-declare global {
-  interface Window {
-    APP_CONFIG: AppConfig;
-  }
-}
+import {OidcSecurityService} from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JokeAPI {
   #http = inject(HttpClient);
-  #headers = {
+  #oidcSecurityService = inject(OidcSecurityService);
+  #baseHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   }
   #uri = '/api/jokes/v1/getRandomJoke';
-  #url = window.APP_CONFIG?.API_URL || '';
+  #url = import.meta.env['NG_APP_API_URL'] || '';
 
-  getRandomJoke(){
-    return this.#http.get(this.#url + this.#uri, {headers: this.#headers}) as Observable<Joke>;
+  getRandomJoke(): Observable<Joke> {
+    return this.#oidcSecurityService.getAccessToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          ...this.#baseHeaders,
+          'Authorization': `Bearer ${token}`
+        });
+
+        return this.#http.get<Joke>(this.#url + this.#uri, {headers});
+      })
+    );
   }
 }
