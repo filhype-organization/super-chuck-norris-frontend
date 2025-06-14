@@ -1,63 +1,17 @@
-name: Chuck Norris FrontEnd action
+name: CI
 
-on: [push, pull_request]
-
-env:
-  IMAGE_NAME: 'leeson77/chuck-norris-frontend'
+on:
+  push:
+  pull_request:
 
 jobs:
-  angular-build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-
-      - name: Install node modules
-        run: npm install
-
-      - name: Build Angular app
-        run: npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: dist/front-chuck-norris/browser
-
-  build-docker:
-    needs: angular-build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: target
-
-      - name: Get version from package.json
-        run: |
-          VERSION=$(jq -r '.version' package.json)
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.LOGIN_DOCKER_HUB }}
-          password: ${{ secrets.TOKEN_DOCKER_HUB }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+  build:
+    uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@test
+    with:
+      build_platform: 'arm64'
+      container_build: true
+      docker_image_name: 'leeson77/chuck-norris-backend'
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKER_USERNAME: ${{ secrets.LOGIN_DOCKER_HUB }}
+      DOCKER_TOKEN: ${{ secrets.TOKEN_DOCKER_HUB }}
