@@ -6,6 +6,22 @@ All documentation is available at this place: https://filhype-organization.githu
 
 ## Development server
 
+Set environment var for backend, ex: 
+
+**Linux/MacOS/WSL:**
+```bash
+export NG_APP_API_URL="http://localhost:8080"
+```
+
+**Windows PowerShell:**
+```powershell
+$env:NG_APP_API_URL="http://localhost:8080"
+```
+
+**Windows Command Prompt:**
+```cmd
+set NG_APP_API_URL=http://localhost:8080
+```
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
 ## Code scaffolding

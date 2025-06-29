@@ -1,7 +1,10 @@
 import { OpenIdConfiguration, LogLevel } from 'angular-auth-oidc-client';
 
+const apiUrl = import.meta.env['NG_APP_API_URL'] || 'http://localhost:8080';
+const authUrl = import.meta.env['NG_APP_AUTH_URL'] || 'http://localhost:8180';
+
 export const authConfig: OpenIdConfiguration = {
-  authority: 'http://localhost:8180/realms/app',
+  authority: `${authUrl}/realms/app`,
   redirectUrl: window.location.origin,
   postLogoutRedirectUri: window.location.origin,
   clientId: 'front',
@@ -9,5 +12,9 @@ export const authConfig: OpenIdConfiguration = {
   disablePkce: false,
   responseType: 'code',
   useRefreshToken: true,
-  logLevel: LogLevel.Debug
+  logLevel: LogLevel.Debug,
+  secureRoutes: [apiUrl],
+  silentRenew: true,
+  silentRenewUrl: `${window.location.origin}/silent-renew.html`,
+  renewTimeBeforeTokenExpiresInSeconds: 30,
 };

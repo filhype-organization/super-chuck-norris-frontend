@@ -1,7 +1,7 @@
 import {computed, inject, Injectable, Signal, signal} from '@angular/core';
 import {JokeAPI} from '../api/JokeAPI';
 import {Joke} from '../models/Joke';
-import {catchError, tap} from 'rxjs';
+import {catchError, of, tap} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,11 +15,11 @@ export class JokeService {
   getRandomJoke(){
     this.#jokeAPI.getRandomJoke().pipe(
       tap((joke: Joke) => {
-        this.#randomJoke.set(joke)
+        this.#randomJoke.set(joke);
       }),
       catchError((error) => {
-        console.error(error);
-        return error;
+        console.error('Error getting random joke:', error);
+        return of(null);
       })
     ).subscribe();
   }
