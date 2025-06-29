@@ -1,0 +1,50 @@
+<header data-bs-theme="dark">
+  <nav class="navbar navbar-expand-lg" aria-label="Global navigation - Standard example">
+    <div class="container-xxl">
+
+      <!-- Orange brand logo -->
+      <div class="navbar-brand me-auto me-lg-4">
+        <a class="stretched-link" href="#">
+          <img src="orange-logo.svg" width="50" height="50" alt="Boosted - Back to Home" loading="lazy" />
+        </a>
+      </div>
+
+      <!-- Burger menu (visible on small screens) -->
+      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target=".global-header-1" aria-controls="global-header-1.1 global-header-1.2" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar with links -->
+      <div id="global-header-1.1" class="navbar-collapse collapse me-lg-auto global-header-1">
+        <ul class="navbar-nav">
+          @if (isAdmin$ | async) {
+            <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Joke admin</a></li>
+          }
+        </ul>
+      </div>
+
+      <!-- User section -->
+      <div id="global-header-1.2" class="navbar-collapse collapse global-header-1">
+        <ul class="navbar-nav flex-row">
+          @if (isAuthenticated$ | async) {
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">{{ userName$ | async }} - </span>
+                {{ userName$ | async }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item" type="button" (click)="logout()">Se déconnecter</button></li>
+              </ul>
+            </li>
+          } @else {
+            <li class="nav-item">
+              <button class="btn btn-outline-secondary btn-sm" type="button" (click)="login()">
+                Se connecter
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
