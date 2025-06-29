@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {authInterceptor, provideAuth, withAppInitializerAuthCheck} from 'angular-auth-oidc-client';
+import {authInterceptor, provideAuth} from 'angular-auth-oidc-client';
 import {authConfig} from './auth.config';
 
 export const appConfig: ApplicationConfig = {
@@ -11,9 +11,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes), 
     provideHttpClient(withInterceptors([authInterceptor()])), 
-    provideAuth(
-      {config: authConfig},
-      withAppInitializerAuthCheck()
-    )
+    provideAuth({config: authConfig})
   ]
 };
