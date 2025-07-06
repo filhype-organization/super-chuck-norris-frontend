@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {JokeService} from '../../service/JokeService';
+import {JokeService} from '../../services/JokeService';
 
 @Component({
     selector: 'app-chuck-search',
