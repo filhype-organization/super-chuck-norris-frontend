@@ -29,15 +29,12 @@ export class UserRoleService {
   }
 
   private initializeUserInfo(): void {
-    // Combiner les données d'authentification et userData
     this.oidcSecurityService.isAuthenticated$.pipe(
       tap(() => {
-        // Quand le statut d'authentification change, mettre à jour les infos utilisateur
         this.updateUserInfo();
       })
     ).subscribe();
 
-    // Écouter les changements de données utilisateur
     this.oidcSecurityService.userData$.pipe(
       tap(() => {
         this.updateUserInfo();
@@ -58,7 +55,6 @@ export class UserRoleService {
 
   private extractUserInfo(userData: any, isAuthenticated: boolean): UserInfo {
     if (!userData || !isAuthenticated) {
-      console.log('UserRoleService - No userData or not authenticated, returning default');
       return {
         userName: '',
         isAdmin: false,
@@ -67,7 +63,6 @@ export class UserRoleService {
       };
     }
 
-    // Extraire les données utilisateur selon la structure OIDC
     let actualUserData = userData;
     if (userData.userData) {
       actualUserData = userData.userData;
@@ -76,14 +71,12 @@ export class UserRoleService {
       console.log('UserRoleService - Using allUserData[0].userData structure:', actualUserData);
     }
 
-    // Extraire le nom d'utilisateur
     const userName = actualUserData?.upn || 
                     actualUserData?.preferred_username || 
                     actualUserData?.name || 
                     actualUserData?.email || 
                     'Utilisateur';
 
-    // Extraire les groupes/rôles
     const groups = this.extractGroups(actualUserData);
     const isAdmin = this.checkAdminRole(actualUserData, groups);
 
@@ -114,12 +107,10 @@ export class UserRoleService {
   }
 
   private checkAdminRole(userData: any, groups: string[]): boolean {
-    // Vérifier dans les groupes extraits
     if (groups.includes('admin')) {
       return true;
     }
 
-    // Vérifier d'autres sources possibles pour le rôle admin
     const roleSources = [
       userData?.role,
       userData?.roles,
@@ -140,7 +131,6 @@ export class UserRoleService {
     return false;
   }
 
-  // Méthodes utilitaires pour faciliter l'utilisation
   public isAdmin$(): Observable<boolean> {
     return this.userInfo$.pipe(map(info => info.isAdmin));
   }
@@ -161,7 +151,6 @@ export class UserRoleService {
     return this.userInfo$.pipe(map(info => info.groups.includes(role)));
   }
 
-  // Méthodes synchrones pour utilisation dans les guards
   public getCurrentUserInfo(): UserInfo {
     return this.userInfoSubject.value;
   }

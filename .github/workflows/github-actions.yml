@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@test
+    uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@main
     with:
       build_platform: 'arm64'
       container_build: true

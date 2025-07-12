@@ -4,11 +4,12 @@ import {UnauthorizedComponent} from './components/unauthorized/unauthorized.comp
 import {AdminPanelComponent} from './components/admin-panel/admin-panel.component';
 import {authGuard} from './guards/auth.guard';
 import {adminGuard} from './guards/admin.guard';
+import { JokeAdminComponent } from './components/joke-admin/joke-admin.component';
 
 export const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [authGuard]},
-  {path: 'admin', component: AdminPanelComponent, canActivate: [authGuard]}, // Temporairement sans adminGuard pour debug
-  {path: 'admin-protected', component: AdminPanelComponent, canActivate: [authGuard, adminGuard]}, // Version avec protection complète
+  {path: 'admin-joke', component: JokeAdminComponent, canActivate: [authGuard, adminGuard]},
+  {path: 'admin-protected', component: AdminPanelComponent, canActivate: [authGuard, adminGuard]},
   {path: 'unauthorized', component: UnauthorizedComponent},
   {path: 'forbidden', component: UnauthorizedComponent},
   {path: '**', redirectTo: ''}
