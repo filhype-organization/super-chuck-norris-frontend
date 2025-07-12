@@ -5,7 +5,12 @@
       <!-- Orange brand logo -->
       <div class="navbar-brand me-auto me-lg-4">
         <a class="stretched-link" href="#">
-          <img src="orange-logo.svg" width="50" height="50" alt="Boosted - Back to Home" loading="lazy" />
+          <img src="chuck-logo.png" 
+               width="80" 
+               height="80" 
+               alt="Chuck Norris Logo" 
+               loading="lazy"
+               class="chuck-logo" />
         </a>
       </div>
 
@@ -18,9 +23,9 @@
       <div id="global-header-1.1" class="navbar-collapse collapse me-lg-auto global-header-1">
         <ul class="navbar-nav">
           @if (isAdmin$ | async) {
-            <li class="nav-item"><a class="nav-link" routerLink="/admin-joke" aria-current="page">Joke admin</a></li>
-            <li class="nav-item"><a class="nav-link" routerLink="/admin-protected" aria-current="page">Admin Information</a></li>
+            <li class="nav-item"><a class="nav-link" routerLink="/admin-joke" aria-current="page">Joke admin</a></li>     
           }
+          <li class="nav-item"><a class="nav-link" routerLink="/admin-protected" aria-current="page">User Information</a></li>
         </ul>
       </div>
 
