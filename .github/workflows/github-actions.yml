@@ -10,7 +10,7 @@ jobs:
     with:
       build_platform: 'arm64'
       container_build: true
-      docker_image_name: 'leeson77/chuck-norris-backend'
+      docker_image_name: 'leeson77/chuck-norris-frontend'
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_USERNAME: ${{ secrets.LOGIN_DOCKER_HUB }}
