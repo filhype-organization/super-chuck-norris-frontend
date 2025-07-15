@@ -42,7 +42,11 @@
             "scripts": [
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/boosted/dist/js/boosted.js"
-            ]
+            ],
+            "ngxEnv": {
+              "prefix": "NG_APP_",
+              "runtime": true
+            }
           },
           "configurations": {
             "production": {
