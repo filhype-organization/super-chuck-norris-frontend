@@ -10,7 +10,7 @@ import {Joke} from '../models/Joke';
 export class JokeAPI {
   #http = inject(HttpClient);
   #baseUri = '/api/v1/jokes';
-  #url = import.meta.env['NG_APP_API_URL'] || '';
+  #url = _NGX_ENV_?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || '';
 
   getRandomJoke(): Observable<Joke> {
     return this.#http.get<Joke>(this.#url + this.#baseUri + '/getRandomJoke');

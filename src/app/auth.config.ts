@@ -1,8 +1,8 @@
 import { OpenIdConfiguration, LogLevel } from 'angular-auth-oidc-client';
 
-const apiUrl = import.meta.env['NG_APP_API_URL'] || 'http://localhost:8080';
-const authUrl = import.meta.env['NG_APP_AUTH_URL'] || 'http://localhost:8180';
-const clientId = import.meta.env['NG_APP_CLIENT_ID'] || 'front';
+const apiUrl = _NGX_ENV_?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || 'http://localhost:8080';
+const authUrl = _NGX_ENV_?.['NG_APP_AUTH_URL'] || import.meta.env['NG_APP_AUTH_URL'] || 'http://localhost:8180';
+const clientId = _NGX_ENV_?.['NG_APP_CLIENT_ID'] || import.meta.env['NG_APP_CLIENT_ID'] || 'front';
 
 export const authConfig: OpenIdConfiguration = {
   authority: `${authUrl}/realms/app`,
