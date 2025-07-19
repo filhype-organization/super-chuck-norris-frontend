@@ -1,8 +1,14 @@
 import { OpenIdConfiguration, LogLevel } from 'angular-auth-oidc-client';
 
-const apiUrl = _NGX_ENV_?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || 'http://localhost:8080';
-const authUrl = _NGX_ENV_?.['NG_APP_AUTH_URL'] || import.meta.env['NG_APP_AUTH_URL'] || 'http://localhost:8180';
-const clientId = _NGX_ENV_?.['NG_APP_CLIENT_ID'] || import.meta.env['NG_APP_CLIENT_ID'] || 'front';
+// Fonction utilitaire pour accéder aux variables d'environnement de manière sécurisée
+function getEnvVar(key: string, defaultValue: string): string {
+  const ngxEnv = (globalThis as any)?._NGX_ENV_;
+  return ngxEnv?.[key] || import.meta.env[key] || defaultValue;
+}
+
+const apiUrl = getEnvVar('NG_APP_API_URL', 'http://localhost:8080');
+const authUrl = getEnvVar('NG_APP_AUTH_URL', 'http://localhost:8180');
+const clientId = getEnvVar('NG_APP_CLIENT_ID', 'front');
 
 export const authConfig: OpenIdConfiguration = {
   authority: `${authUrl}/realms/app`,

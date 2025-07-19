@@ -10,14 +10,19 @@ import {Joke} from '../models/Joke';
 export class JokeAPI {
   #http = inject(HttpClient);
   #baseUri = '/api/v1/jokes';
-  #url = _NGX_ENV_?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || '';
+
+  private getApiUrl(): string {
+    // Vérification sécurisée de _NGX_ENV_
+    const ngxEnv = (globalThis as any)?._NGX_ENV_;
+    return ngxEnv?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || '';
+  }
 
   getRandomJoke(): Observable<Joke> {
-    return this.#http.get<Joke>(this.#url + this.#baseUri + '/getRandomJoke');
+    return this.#http.get<Joke>(this.getApiUrl() + this.#baseUri + '/getRandomJoke');
   }
 
   getAllJokes(page: number = 0, size: number = 10): Observable<{jokes: Joke[], total: number}> {
-    return this.#http.get<Joke[]>(this.#url + this.#baseUri + `?page=${page}&size=${size}`, {
+    return this.#http.get<Joke[]>(this.getApiUrl() + this.#baseUri + `?page=${page}&size=${size}`, {
       observe: 'response'
     }).pipe(
       tap(response => {
@@ -41,18 +46,18 @@ export class JokeAPI {
   }
 
   getJokeById(id: number): Observable<Joke> {
-    return this.#http.get<Joke>(this.#url + this.#baseUri + '/' + id);
+    return this.#http.get<Joke>(this.getApiUrl() + this.#baseUri + '/' + id);
   }
 
   createJoke(joke: Joke): Observable<Joke> {
-    return this.#http.post<Joke>(this.#url + this.#baseUri, joke);
+    return this.#http.post<Joke>(this.getApiUrl() + this.#baseUri, joke);
   }
 
   updateJoke(joke: Joke): Observable<Joke> {
-    return this.#http.put<Joke>(this.#url + this.#baseUri, joke);
+    return this.#http.put<Joke>(this.getApiUrl() + this.#baseUri, joke);
   }
 
   deleteJoke(id: number): Observable<void> {
-    return this.#http.delete<void>(this.#url + this.#baseUri + '/' + id);
+    return this.#http.delete<void>(this.getApiUrl() + this.#baseUri + '/' + id);
   }
 }

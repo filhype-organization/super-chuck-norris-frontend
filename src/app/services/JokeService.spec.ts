@@ -4,12 +4,16 @@ import { JokeService } from './JokeService';
 import { JokeAPI } from '../api/JokeAPI';
 import { Joke } from '../models/Joke';
 import { of, throwError } from 'rxjs';
+import { EnvironmentMock } from '../../test-helpers/environment-mock';
 
 describe('JokeService', () => {
   let service: JokeService;
   let jokeApiSpy: jasmine.SpyObj<JokeAPI>;
 
   beforeEach(() => {
+    // Configuration de l'environnement de test
+    EnvironmentMock.setup();
+
     const spy = jasmine.createSpyObj('JokeAPI', [
       'getRandomJoke',
       'getAllJokes',
@@ -29,6 +33,11 @@ describe('JokeService', () => {
 
     service = TestBed.inject(JokeService);
     jokeApiSpy = TestBed.inject(JokeAPI) as jasmine.SpyObj<JokeAPI>;
+  });
+
+  afterEach(() => {
+    // Nettoyage après chaque test
+    EnvironmentMock.cleanup();
   });
 
   it('should be created', () => {

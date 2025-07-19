@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { JokeAPI } from './JokeAPI';
 import { Joke } from '../models/Joke';
+import { EnvironmentMock } from '../../test-helpers/environment-mock';
 
 describe('JokeAPI', () => {
   let service: JokeAPI;
@@ -9,6 +10,9 @@ describe('JokeAPI', () => {
   const baseUrl = '/api/v1/jokes';
 
   beforeEach(() => {
+    // Configuration de l'environnement de test
+    EnvironmentMock.setup();
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [JokeAPI]
@@ -19,6 +23,8 @@ describe('JokeAPI', () => {
 
   afterEach(() => {
     httpMock.verify();
+    // Nettoyage après chaque test
+    EnvironmentMock.cleanup();
   });
 
   it('should be created', () => {
