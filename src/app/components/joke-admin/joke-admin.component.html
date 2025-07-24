@@ -1,0 +1,216 @@
+<div class="container-fluid mt-4">
+  <!-- En-tête -->
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="h2">Administration des Blagues</h1>
+    </div>
+    <div class="col-auto d-flex align-items-center gap-3">
+      <!-- Sélecteur de taille de page -->
+      <div class="d-flex align-items-center">
+        <label for="pageSize" class="form-label me-2 mb-0 text-nowrap">Éléments par page:</label>
+        <select 
+          id="pageSize" 
+          class="form-select form-select-sm" 
+          style="width: auto;"
+          [value]="jokeService.pageSize()"
+          (change)="changePageSize($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+      <!-- Bouton d'ajout -->
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="openAddModal()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter une blague
+      </button>
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  @if (jokeService.loading()) {
+    <div class="d-flex justify-content-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Erreur -->
+  @if (jokeService.error()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ jokeService.error() }}
+    </div>
+  }
+
+  <!-- Tableau des blagues -->
+  @if (!jokeService.loading() && jokeService.jokes().length > 0) {
+          <table class="table">
+            <thead class="table">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Blague</th>
+                <th scope="col">Date de création</th>
+                <th scope="col" class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (joke of jokeService.jokes(); track joke.id; let i = $index) {
+                <tr>
+                  <td>{{ i }}</td>
+                  <td>
+                    <div class="text-truncate" style="max-width: 400px;" [title]="joke.joke">
+                      {{ joke.joke }}
+                    </div>
+                  </td>
+                  <td>
+                    {{ joke.created_at | date:'short':'fr' }}
+                  </td>
+                  <td class="text-center">
+                      <button 
+                        type="button" 
+                        class="btn btn-primary"
+                        (click)="openEditModal(joke)"
+                        title="Modifier">
+                        Modifier
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-danger"
+                        (click)="deleteJoke(joke)"
+                        title="Supprimer">
+                        Supprimer
+                      </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+      
+      <!-- Pagination -->
+      @if (jokeService.totalPages() > 1) {
+          <nav aria-label="Pagination des blagues">
+            <ul class="pagination justify-content-center">
+              <!-- Bouton Previous -->
+              <li class="page-item" [class.disabled]="!jokeService.hasPreviousPage()">
+                <button 
+                  class="page-link" 
+                  (click)="goToPreviousPage()"
+                  [disabled]="!jokeService.hasPreviousPage()">
+                  Previous
+                </button>
+              </li>
+              
+              <!-- Pages numérotées -->
+              @for (pageNum of getPageNumbers(); track pageNum) {
+                <li class="page-item" [class.active]="pageNum === jokeService.currentPage()">
+                  <button 
+                    class="page-link" 
+                    (click)="goToPage(pageNum)"
+                    [attr.aria-current]="pageNum === jokeService.currentPage() ? 'page' : null">
+                    {{ pageNum + 1 }}
+                  </button>
+                </li>
+              }
+              
+              <!-- Bouton Next -->
+              <li class="page-item" [class.disabled]="!jokeService.hasNextPage()">
+                <button 
+                  class="page-link" 
+                  (click)="goToNextPage()"
+                  [disabled]="!jokeService.hasNextPage()">
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+      }
+  }
+
+  <!-- Aucune blague -->
+  @if (!jokeService.loading() && jokeService.jokes().length === 0) {
+    <div class="text-center py-5">
+      <div class="mb-3">
+        <i class="bi bi-emoji-laugh display-1 text-muted"></i>
+      </div>
+      <h4 class="text-muted">Aucune blague trouvée</h4>
+      <p class="text-muted">Commencez par ajouter votre première blague Chuck Norris !</p>
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="openAddModal()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Ajouter une blague
+      </button>
+    </div>
+  }
+</div>
+
+<!-- Modal pour ajouter/modifier une blague -->
+@if (showModal()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            @if (isEditing()) {
+              <i class="bi bi-pencil me-2"></i>Modifier la blague
+            } @else {
+              <i class="bi bi-plus-circle me-2"></i>Ajouter une blague
+            }
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="closeModal()"
+            aria-label="Fermer">
+          </button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveJoke()">
+            <div class="mb-3">
+              <label for="jokeText" class="form-label fw-bold">
+                Texte de la blague <span class="text-danger">*</span>
+              </label>
+              <textarea 
+                id="jokeText"
+                class="form-control" 
+                rows="4"
+                [value]="jokeText()"
+                (input)="updateJokeText($event)"
+                placeholder="Entrez le texte de la blague Chuck Norris..."
+                required>
+              </textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeModal()">
+            <i class="bi bi-x-circle me-2"></i>
+            Annuler
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="saveJoke()"
+            [disabled]="!jokeText().trim()">
+            <i class="bi bi-check-circle me-2"></i>
+            @if (isEditing()) {
+              Modifier
+            } @else {
+              Ajouter
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

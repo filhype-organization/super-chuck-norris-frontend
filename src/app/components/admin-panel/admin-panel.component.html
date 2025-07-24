@@ -1,0 +1,19 @@
+
+<div class="admin-panel">
+    <h2>Panneau d'administration</h2>
+    <p>Bienvenue {{ userRoleService.userName$() | async }}, vous avez accès au panneau admin.</p>
+
+    <div class="user-info">
+        <h3>Informations utilisateur</h3>
+        <p><strong>Nom d'utilisateur:</strong> {{ userRoleService.userName$() | async }}</p>
+        <p><strong>Authentifié:</strong> {{ (userRoleService.isAuthenticated$() | async) ? 'Oui' : 'Non' }}</p>
+        <p><strong>Admin:</strong> {{ (userRoleService.isAdmin$() | async) ? 'Oui' : 'Non' }}</p>
+        <p><strong>Groupes:</strong></p>
+        <ul>
+        @for (group of (userRoleService.groups$() | async); track group) {
+            <li>{{ group }}</li>
+        }
+        </ul>
+    </div>
+</div>
+

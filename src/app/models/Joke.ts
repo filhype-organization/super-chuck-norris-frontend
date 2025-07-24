@@ -1,5 +1,5 @@
 export class Joke {
-  public id: number = 0;
+  public id: number|null = null
   public joke: string = "";
   public created_at: Date = new Date();
 
