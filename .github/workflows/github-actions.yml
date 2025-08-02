@@ -8,7 +8,7 @@ jobs:
   build:
     uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@main
     with:
-      build_platforms: ['amd64', 'arm64']
+      build_platforms: '["amd64", "arm64"]'
       container_build: true
       docker_image_name: 'leeson77/chuck-norris-frontend'
     secrets:
