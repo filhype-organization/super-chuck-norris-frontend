@@ -1,3 +1,4 @@
+import '../../test-helpers/test-init';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { JokeService } from './JokeService';
@@ -36,6 +37,8 @@ describe('JokeService', () => {
   });
 
   afterEach(() => {
+    // Nettoyage du TestBed
+    TestBed.resetTestingModule();
     // Nettoyage après chaque test
     EnvironmentMock.cleanup();
   });
