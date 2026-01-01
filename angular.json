@@ -113,8 +113,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
-            "builderMode": "browser"
+            "scripts": []
           }
         }
       }
