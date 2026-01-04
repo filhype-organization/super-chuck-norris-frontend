@@ -4,6 +4,9 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Joke} from '../models/Joke';
 
+// Accès direct (requis pour esbuild - pas d'accès dynamique)
+const API_URL = import.meta.env.NG_APP_API_URL || '';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,18 +15,14 @@ export class JokeAPI {
   #baseUri = '/api/v1/jokes';
 
   private getApiUrl(): string {
-    // Vérifier d'abord _NGX_ENV_ (utilisé en production et en test)
+    // Vérifier d'abord _NGX_ENV_ (utilisé en production runtime)
     const ngxEnv = (globalThis as any)._NGX_ENV_;
     if (ngxEnv?.['NG_APP_API_URL']) {
       return ngxEnv['NG_APP_API_URL'];
     }
     
-    // Fallback sur import.meta.env (pas disponible en test Karma)
-    try {
-      return import.meta.env?.['NG_APP_API_URL'] || '';
-    } catch {
-      return '';
-    }
+    // Utiliser la variable build-time
+    return API_URL;
   }
 
   getRandomJoke(): Observable<Joke> {

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiURL: ' https://chuck.filhype.ovh/api/jokes/v1/'
+  apiURL: ' https://chuck.filhype.ovh/api/v1/jokes/'
 };
