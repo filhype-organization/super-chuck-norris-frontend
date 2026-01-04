@@ -1,11 +1,5 @@
 import { OpenIdConfiguration, LogLevel } from 'angular-auth-oidc-client';
 
-// Fonction utilitaire pour accéder aux variables d'environnement de manière sécurisée
-function getEnvVar(key: string, defaultValue: string): string {
-  const ngxEnv = (globalThis as any)?._NGX_ENV_;
-  return ngxEnv?.[key] || import.meta.env[key] || defaultValue;
-}
-
 // Fonction pour obtenir l'origin de manière sécurisée (lazy-loaded)
 function getWindowOrigin(): string {
   try {
@@ -15,18 +9,22 @@ function getWindowOrigin(): string {
   }
 }
 
-const apiUrl = getEnvVar('NG_APP_API_URL', 'http://localhost:8080');
-const authUrl = getEnvVar('NG_APP_AUTH_URL', 'http://localhost:8180');
-const clientId = getEnvVar('NG_APP_CLIENT_ID', 'front');
+// Accès direct aux variables d'environnement (requis pour esbuild - pas d'accès dynamique)
+// En dev, apiUrl reste vide pour utiliser le proxy (/api -> https://chuck.filhype.ovh)
+const apiUrl = import.meta.env.NG_APP_API_URL || '';
+const authUrl = import.meta.env.NG_APP_AUTH_URL || 'http://localhost:8180/realms/app';
+const clientId = import.meta.env.NG_APP_CLIENT_ID || 'front';
+
+console.log('ENV DEBUG:', { apiUrl, authUrl, clientId });
 
 // Créer la config de manière lazy pour éviter les problèmes en test
 export function createAuthConfig(): OpenIdConfiguration {
   return {
-    authority: `${authUrl}/realms/app`,
+    authority: authUrl,
     redirectUrl: getWindowOrigin(),
     postLogoutRedirectUri: getWindowOrigin(),
     clientId: clientId,
-    scope: 'openid',
+    scope: 'openid offline_access',
     disablePkce: false,
     responseType: 'code',
     useRefreshToken: true,

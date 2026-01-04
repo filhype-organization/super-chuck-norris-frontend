@@ -44,8 +44,7 @@
               "node_modules/boosted/dist/js/boosted.js"
             ],
             "ngxEnv": {
-              "prefix": "NG_APP_",
-              "runtime": true
+              "prefix": "NG_APP_"
             }
           },
           "configurations": {
@@ -89,7 +88,9 @@
             }
           },
           "defaultConfiguration": "development",
-          "options": {}
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@ngx-env/builder:extract-i18n",
