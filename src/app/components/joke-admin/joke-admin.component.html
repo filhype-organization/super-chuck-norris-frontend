@@ -60,9 +60,9 @@
               </tr>
             </thead>
             <tbody>
-              @for (joke of jokeService.jokes(); track joke.id; let i = $index) {
+              @for (joke of jokeService.jokes(); track joke.id) {
                 <tr>
-                  <td>{{ i }}</td>
+                  <td>{{ joke.id }}</td>
                   <td>
                     <div class="text-truncate" style="max-width: 400px;" [title]="joke.joke">
                       {{ joke.joke }}

@@ -13,19 +13,16 @@ import { UserRoleService } from '../../services/user-role.service';
 export class NavbarComponent {
   private oidcSecurityService = inject(OidcSecurityService);
   private userRoleService = inject(UserRoleService);
-  
-  // Utiliser directement les observables du service
-  isAdmin$ = this.userRoleService.isAdmin$();
-  isAuthenticated$ = this.userRoleService.isAuthenticated$();
-  userName$ = this.userRoleService.userName$();
+
+  isAdmin$ = this.userRoleService.isAdmin$;
+  isAuthenticated$ = this.userRoleService.isAuthenticated$;
+  userName$ = this.userRoleService.userName$;
 
   login(): void {
     this.oidcSecurityService.authorize();
   }
 
   logout(): void {
-    this.oidcSecurityService
-      .logoff()
-      .subscribe((result) => console.log('Logout result:', result));
+    this.oidcSecurityService.logoff().subscribe();
   }
 }
