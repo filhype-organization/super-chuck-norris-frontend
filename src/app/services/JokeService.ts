@@ -1,14 +1,15 @@
-import {computed, inject, Injectable, Signal, signal} from '@angular/core';
-import {JokeAPI} from '../api/JokeAPI';
-import {Joke} from '../models/Joke';
-import {catchError, of, tap} from 'rxjs';
+import { computed, inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { JokeAPI } from '../api/JokeAPI';
+import { Joke } from '../models/Joke';
+import { catchError, finalize, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class JokeService {
   #jokeAPI = inject(JokeAPI);
+  #destroyRef = inject(DestroyRef);
   #randomJoke = signal(new Joke());
   #jokes = signal<Joke[]>([]);
   #loading = signal(false);
@@ -16,7 +17,7 @@ export class JokeService {
   #currentPage = signal(0);
   #pageSize = signal(10);
   #totalJokes = signal(0);
-  
+
   randomJoke = computed(() => this.#randomJoke());
   jokes = computed(() => this.#jokes());
   loading = computed(() => this.#loading());
@@ -28,49 +29,46 @@ export class JokeService {
   hasPreviousPage = computed(() => this.#currentPage() > 0);
   hasNextPage = computed(() => this.#currentPage() < this.totalPages() - 1);
 
-  getRandomJoke(){
+  getRandomJoke() {
     this.#loading.set(true);
     this.#error.set(null);
     this.#jokeAPI.getRandomJoke().pipe(
-      tap((joke: Joke) => {
-        this.#randomJoke.set(joke);
-        this.#loading.set(false);
-      }),
+      tap((joke: Joke) => this.#randomJoke.set(joke)),
       catchError((error) => {
         console.error('Error getting random joke:', error);
         this.#error.set('Erreur lors du chargement de la blague');
-        this.#loading.set(false);
         return of(null);
-      })
+      }),
+      finalize(() => this.#loading.set(false)),
+      takeUntilDestroyed(this.#destroyRef)
     ).subscribe();
   }
 
   getAllJokes(page?: number, size?: number) {
     if (page !== undefined) this.#currentPage.set(page);
     if (size !== undefined) this.#pageSize.set(size);
-    
+
     this.#loading.set(true);
     this.#error.set(null);
-    
-    // Récupérer les blagues avec le total dans le header
+
     this.#jokeAPI.getAllJokes(this.#currentPage(), this.#pageSize()).pipe(
       tap(({ jokes, total }) => {
         this.#jokes.set(jokes);
         this.#totalJokes.set(total);
-        this.#loading.set(false);
       }),
       catchError((error) => {
         console.error('Error getting jokes:', error);
         this.#error.set('Erreur lors du chargement des blagues');
-        this.#loading.set(false);
         return of({ jokes: [], total: 0 });
-      })
+      }),
+      finalize(() => this.#loading.set(false)),
+      takeUntilDestroyed(this.#destroyRef)
     ).subscribe();
   }
 
   setPageSize(size: number) {
     this.#pageSize.set(size);
-    this.#currentPage.set(0); // Reset to first page
+    this.#currentPage.set(0);
     this.getAllJokes();
   }
 
@@ -96,16 +94,14 @@ export class JokeService {
     this.#loading.set(true);
     this.#error.set(null);
     this.#jokeAPI.createJoke(joke).pipe(
-      tap((newJoke: Joke) => {
-        // Recharger la liste complète après création
-        this.getAllJokes();
-      }),
+      tap(() => this.getAllJokes()),
       catchError((error) => {
         console.error('Error creating joke:', error);
         this.#error.set('Erreur lors de la création de la blague');
-        this.#loading.set(false);
         return of(null);
-      })
+      }),
+      finalize(() => this.#loading.set(false)),
+      takeUntilDestroyed(this.#destroyRef)
     ).subscribe();
   }
 
@@ -121,14 +117,14 @@ export class JokeService {
           newJokes[index] = updatedJoke;
           this.#jokes.set(newJokes);
         }
-        this.#loading.set(false);
       }),
       catchError((error) => {
         console.error('Error updating joke:', error);
         this.#error.set('Erreur lors de la mise à jour de la blague');
-        this.#loading.set(false);
         return of(null);
-      })
+      }),
+      finalize(() => this.#loading.set(false)),
+      takeUntilDestroyed(this.#destroyRef)
     ).subscribe();
   }
 
@@ -136,16 +132,14 @@ export class JokeService {
     this.#loading.set(true);
     this.#error.set(null);
     this.#jokeAPI.deleteJoke(id).pipe(
-      tap(() => {
-        // Recharger la liste complète après suppression pour mettre à jour le total
-        this.getAllJokes();
-      }),
+      tap(() => this.getAllJokes()),
       catchError((error) => {
         console.error('Error deleting joke:', error);
         this.#error.set('Erreur lors de la suppression de la blague');
-        this.#loading.set(false);
         return of(null);
-      })
+      }),
+      finalize(() => this.#loading.set(false)),
+      takeUntilDestroyed(this.#destroyRef)
     ).subscribe();
   }
 }

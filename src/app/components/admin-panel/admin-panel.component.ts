@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UserRoleService } from '../../services/user-role.service';
 import { AsyncPipe } from '@angular/common';
 
@@ -8,11 +8,6 @@ import { AsyncPipe } from '@angular/common';
   styleUrl: './admin-panel.component.scss',
   imports: [AsyncPipe]
 })
-export class AdminPanelComponent implements OnInit {
+export class AdminPanelComponent {
   protected userRoleService = inject(UserRoleService);
-  
-  ngOnInit() {
-    this.userRoleService.userInfo$.subscribe(userInfo => {
-    });
-  }
 }
