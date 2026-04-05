@@ -3,7 +3,13 @@
     "allow": [
       "Bash(npx skills:*)",
       "Bash(npx ng:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm view:*)",
+      "Bash(npm install:*)",
+      "Read(//tmp/**)",
+      "Bash(npx @angular/cli@21.2.6 new test-project --dry-run --skip-git)",
+      "Bash(npx @angular/cli@21.2.6 new test-project --skip-git --skip-install)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['projects']['test-project']['architect']['test'], indent=2\\)\\)\")"
     ]
   }
 }
