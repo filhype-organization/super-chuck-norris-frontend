@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills:*)",
+      "Bash(npx ng:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
