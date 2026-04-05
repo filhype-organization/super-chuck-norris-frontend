@@ -1,6 +1,7 @@
 import '../../../test-helpers/test-init';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { JokeAdminComponent } from './joke-admin.component';
 import { EnvironmentMock } from '../../../test-helpers/environment-mock';
 
@@ -9,16 +10,15 @@ describe('JokeAdminComponent', () => {
   let fixture: ComponentFixture<JokeAdminComponent>;
 
   beforeEach(async () => {
-    // Configuration de l'environnement de test
     EnvironmentMock.setup();
 
     await TestBed.configureTestingModule({
-      imports: [
-        JokeAdminComponent,
-        HttpClientTestingModule
+      imports: [JokeAdminComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(JokeAdminComponent);
     component = fixture.componentInstance;
@@ -26,7 +26,6 @@ describe('JokeAdminComponent', () => {
   });
 
   afterEach(() => {
-    // Nettoyage après chaque test
     EnvironmentMock.cleanup();
   });
 

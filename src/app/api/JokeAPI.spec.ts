@@ -1,6 +1,7 @@
 import '../../test-helpers/test-init';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { JokeAPI } from './JokeAPI';
 import { Joke } from '../models/Joke';
 import { EnvironmentMock } from '../../test-helpers/environment-mock';
@@ -11,12 +12,14 @@ describe('JokeAPI', () => {
   const baseUrl = '/api/v1/jokes';
 
   beforeEach(() => {
-    // Configuration de l'environnement de test
     EnvironmentMock.setup();
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [JokeAPI]
+      providers: [
+        JokeAPI,
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     });
     service = TestBed.inject(JokeAPI);
     httpMock = TestBed.inject(HttpTestingController);
@@ -24,9 +27,7 @@ describe('JokeAPI', () => {
 
   afterEach(() => {
     httpMock.verify();
-    // Nettoyage du TestBed
     TestBed.resetTestingModule();
-    // Nettoyage après chaque test
     EnvironmentMock.cleanup();
   });
 
@@ -63,17 +64,11 @@ describe('JokeAPI', () => {
 
     const req = httpMock.expectOne(`${baseUrl}?page=0&size=10`);
     expect(req.request.method).toBe('GET');
-    
-    // Simuler la réponse avec le header X-Total-Count
     req.flush(mockJokes, { headers: { 'X-Total-Count': '2' } });
   });
 
   it('should create a joke', () => {
-    const newJoke: Joke = {
-      id: null,
-      joke: 'New Chuck Norris joke',
-      created_at: new Date()
-    };
+    const newJoke: Joke = { id: null, joke: 'New Chuck Norris joke', created_at: new Date() };
     const createdJoke: Joke = { ...newJoke, id: 1 };
 
     service.createJoke(newJoke).subscribe(joke => {
@@ -87,11 +82,7 @@ describe('JokeAPI', () => {
   });
 
   it('should update a joke', () => {
-    const updatedJoke: Joke = {
-      id: 1,
-      joke: 'Updated Chuck Norris joke',
-      created_at: new Date()
-    };
+    const updatedJoke: Joke = { id: 1, joke: 'Updated Chuck Norris joke', created_at: new Date() };
 
     service.updateJoke(updatedJoke).subscribe(joke => {
       expect(joke).toEqual(updatedJoke);
@@ -104,21 +95,15 @@ describe('JokeAPI', () => {
   });
 
   it('should delete a joke', () => {
-    const jokeId = 1;
+    service.deleteJoke(1).subscribe();
 
-    service.deleteJoke(jokeId).subscribe();
-
-    const req = httpMock.expectOne(`${baseUrl}/${jokeId}`);
+    const req = httpMock.expectOne(`${baseUrl}/1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
 
   it('should get joke by id', () => {
-    const mockJoke: Joke = {
-      id: 1,
-      joke: 'Chuck Norris can divide by zero.',
-      created_at: new Date()
-    };
+    const mockJoke: Joke = { id: 1, joke: 'Chuck Norris can divide by zero.', created_at: new Date() };
 
     service.getJokeById(1).subscribe(joke => {
       expect(joke).toEqual(mockJoke);

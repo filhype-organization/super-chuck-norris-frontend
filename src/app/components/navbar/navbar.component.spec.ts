@@ -1,8 +1,9 @@
 import '../../../test-helpers/test-init';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { AuthModule } from 'angular-auth-oidc-client';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { provideAuth } from 'angular-auth-oidc-client';
 import { NavbarComponent } from './navbar.component';
 import { EnvironmentMock } from '../../../test-helpers/environment-mock';
 
@@ -11,19 +12,20 @@ describe('NavbarComponent', () => {
   let fixture: ComponentFixture<NavbarComponent>;
 
   beforeEach(async () => {
-    // Configuration de l'environnement de test
     EnvironmentMock.setup();
+
     await TestBed.configureTestingModule({
-      imports: [
-        NavbarComponent,
-        HttpClientTestingModule,
-        RouterTestingModule,
-        AuthModule.forRoot({
+      imports: [NavbarComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideAuth({
           config: {
             authority: 'test-authority',
-            redirectUrl: 'test-redirect',
+            redirectUrl: 'http://localhost',
             clientId: 'test-client-id',
-            scope: 'test-scope',
+            scope: 'openid',
             responseType: 'code',
             silentRenew: false,
             useRefreshToken: false,
@@ -31,8 +33,7 @@ describe('NavbarComponent', () => {
           }
         })
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NavbarComponent);
     component = fixture.componentInstance;
@@ -40,7 +41,6 @@ describe('NavbarComponent', () => {
   });
 
   afterEach(() => {
-    // Nettoyage après chaque test
     EnvironmentMock.cleanup();
   });
 
