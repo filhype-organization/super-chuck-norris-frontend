@@ -1,5 +1,8 @@
+import '../../test-helpers/test-init';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { vi } from 'vitest';
 import { JokeService } from './JokeService';
 import { JokeAPI } from '../api/JokeAPI';
 import { Joke } from '../models/Joke';
@@ -8,35 +11,41 @@ import { EnvironmentMock } from '../../test-helpers/environment-mock';
 
 describe('JokeService', () => {
   let service: JokeService;
-  let jokeApiSpy: jasmine.SpyObj<JokeAPI>;
+  let jokeApiSpy: {
+    getRandomJoke: ReturnType<typeof vi.fn>;
+    getAllJokes: ReturnType<typeof vi.fn>;
+    createJoke: ReturnType<typeof vi.fn>;
+    updateJoke: ReturnType<typeof vi.fn>;
+    deleteJoke: ReturnType<typeof vi.fn>;
+    getJokeById: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    // Configuration de l'environnement de test
     EnvironmentMock.setup();
 
-    const spy = jasmine.createSpyObj('JokeAPI', [
-      'getRandomJoke',
-      'getAllJokes',
-      'createJoke',
-      'updateJoke',
-      'deleteJoke',
-      'getJokeById'
-    ]);
+    jokeApiSpy = {
+      getRandomJoke: vi.fn(),
+      getAllJokes: vi.fn(),
+      createJoke: vi.fn(),
+      updateJoke: vi.fn(),
+      deleteJoke: vi.fn(),
+      getJokeById: vi.fn()
+    };
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         JokeService,
-        { provide: JokeAPI, useValue: spy }
+        { provide: JokeAPI, useValue: jokeApiSpy }
       ]
     });
 
     service = TestBed.inject(JokeService);
-    jokeApiSpy = TestBed.inject(JokeAPI) as jasmine.SpyObj<JokeAPI>;
   });
 
   afterEach(() => {
-    // Nettoyage après chaque test
+    TestBed.resetTestingModule();
     EnvironmentMock.cleanup();
   });
 
@@ -51,7 +60,7 @@ describe('JokeService', () => {
       created_at: new Date()
     };
 
-    jokeApiSpy.getRandomJoke.and.returnValue(of(mockJoke));
+    jokeApiSpy.getRandomJoke.mockReturnValue(of(mockJoke));
 
     service.getRandomJoke();
 
@@ -61,8 +70,7 @@ describe('JokeService', () => {
   });
 
   it('should handle error when getting random joke', () => {
-    const errorMessage = 'API Error';
-    jokeApiSpy.getRandomJoke.and.returnValue(throwError(() => new Error(errorMessage)));
+    jokeApiSpy.getRandomJoke.mockReturnValue(throwError(() => new Error('API Error')));
 
     service.getRandomJoke();
 
@@ -75,9 +83,8 @@ describe('JokeService', () => {
       { id: 1, joke: 'Joke 1', created_at: new Date() },
       { id: 2, joke: 'Joke 2', created_at: new Date() }
     ];
-    const mockResponse = { jokes: mockJokes, total: 2 };
 
-    jokeApiSpy.getAllJokes.and.returnValue(of(mockResponse));
+    jokeApiSpy.getAllJokes.mockReturnValue(of({ jokes: mockJokes, total: 2 }));
 
     service.getAllJokes(0, 10);
 
@@ -88,24 +95,16 @@ describe('JokeService', () => {
   });
 
   it('should calculate total pages correctly', () => {
-    const mockJokes: Joke[] = [
-      { id: 1, joke: 'Joke 1', created_at: new Date() },
-      { id: 2, joke: 'Joke 2', created_at: new Date() }
-    ];
-    const mockResponse = { jokes: mockJokes, total: 25 };
-
-    jokeApiSpy.getAllJokes.and.returnValue(of(mockResponse));
+    jokeApiSpy.getAllJokes.mockReturnValue(of({ jokes: [], total: 25 }));
 
     service.getAllJokes(0, 10);
 
-    expect(service.totalPages()).toBe(3); // 25 jokes / 10 per page = 3 pages
+    expect(service.totalPages()).toBe(3);
   });
 
   it('should handle navigation correctly', () => {
-    const mockResponse = { jokes: [], total: 25 };
-    jokeApiSpy.getAllJokes.and.returnValue(of(mockResponse));
+    jokeApiSpy.getAllJokes.mockReturnValue(of({ jokes: [], total: 25 }));
 
-    // Test navigation
     service.getAllJokes(0, 10);
     expect(service.hasPreviousPage()).toBeFalsy();
     expect(service.hasNextPage()).toBeTruthy();
