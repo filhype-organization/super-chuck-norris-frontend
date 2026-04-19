@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface UserInfo {
   userName: string;
@@ -14,7 +15,7 @@ export interface UserInfo {
 })
 export class UserRoleService {
   private oidcSecurityService = inject(OidcSecurityService);
-  
+
   private userInfoSubject = new BehaviorSubject<UserInfo>({
     userName: '',
     isAdmin: false,
@@ -25,42 +26,20 @@ export class UserRoleService {
   public userInfo$ = this.userInfoSubject.asObservable();
 
   constructor() {
-    this.initializeUserInfo();
-  }
-
-  private initializeUserInfo(): void {
-    this.oidcSecurityService.isAuthenticated$.pipe(
-      tap(() => {
-        this.updateUserInfo();
-      })
-    ).subscribe();
-
-    this.oidcSecurityService.userData$.pipe(
-      tap(() => {
-        this.updateUserInfo();
-      })
-    ).subscribe();
-  }
-
-  private updateUserInfo(): void {
-    this.oidcSecurityService.isAuthenticated$.subscribe(authResult => {
-      const isAuthenticated = authResult.isAuthenticated;
-      
-      this.oidcSecurityService.userData$.subscribe(userData => {
-        const userInfo = this.extractUserInfo(userData, isAuthenticated);
-        this.userInfoSubject.next(userInfo);
-      });
+    combineLatest([
+      this.oidcSecurityService.isAuthenticated$,
+      this.oidcSecurityService.userData$
+    ]).pipe(
+      takeUntilDestroyed()
+    ).subscribe(([authResult, userData]) => {
+      const userInfo = this.extractUserInfo(userData, authResult.isAuthenticated);
+      this.userInfoSubject.next(userInfo);
     });
   }
 
   private extractUserInfo(userData: any, isAuthenticated: boolean): UserInfo {
     if (!userData || !isAuthenticated) {
-      return {
-        userName: '',
-        isAdmin: false,
-        groups: [],
-        isAuthenticated: false
-      };
+      return { userName: '', isAdmin: false, groups: [], isAuthenticated: false };
     }
 
     let actualUserData = userData;
@@ -68,24 +47,18 @@ export class UserRoleService {
       actualUserData = userData.userData;
     } else if (Array.isArray(userData.allUserData) && userData.allUserData.length > 0 && userData.allUserData[0].userData) {
       actualUserData = userData.allUserData[0].userData;
-      console.log('UserRoleService - Using allUserData[0].userData structure:', actualUserData);
     }
 
-    const userName = actualUserData?.upn || 
-                    actualUserData?.preferred_username || 
-                    actualUserData?.name || 
-                    actualUserData?.email || 
+    const userName = actualUserData?.upn ||
+                    actualUserData?.preferred_username ||
+                    actualUserData?.name ||
+                    actualUserData?.email ||
                     'Utilisateur';
 
     const groups = this.extractGroups(actualUserData);
     const isAdmin = this.checkAdminRole(actualUserData, groups);
 
-    return {
-      userName,
-      isAdmin,
-      groups,
-      isAuthenticated
-    };
+    return { userName, isAdmin, groups, isAuthenticated };
   }
 
   private extractGroups(userData: any): string[] {
@@ -98,18 +71,13 @@ export class UserRoleService {
     ];
 
     for (const source of possibleGroupSources) {
-      if (Array.isArray(source)) {
-        return source;
-      }
+      if (Array.isArray(source)) return source;
     }
-
     return [];
   }
 
   private checkAdminRole(userData: any, groups: string[]): boolean {
-    if (groups.includes('admin')) {
-      return true;
-    }
+    if (groups.includes('admin')) return true;
 
     const roleSources = [
       userData?.role,
@@ -120,14 +88,9 @@ export class UserRoleService {
     ];
 
     for (const source of roleSources) {
-      if (Array.isArray(source) && source.includes('admin')) {
-        return true;
-      }
-      if (typeof source === 'string' && source === 'admin') {
-        return true;
-      }
+      if (Array.isArray(source) && source.includes('admin')) return true;
+      if (typeof source === 'string' && source === 'admin') return true;
     }
-
     return false;
   }
 

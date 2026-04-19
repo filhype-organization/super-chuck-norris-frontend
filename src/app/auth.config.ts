@@ -19,7 +19,7 @@ export const authConfig: OpenIdConfiguration = {
   disablePkce: false,
   responseType: 'code',
   useRefreshToken: true,
-  logLevel: LogLevel.Debug,
+  logLevel: LogLevel.Warn,
   secureRoutes: [apiUrl],
   silentRenew: true,
   silentRenewUrl: `${window.location.origin}/silent-renew.html`,

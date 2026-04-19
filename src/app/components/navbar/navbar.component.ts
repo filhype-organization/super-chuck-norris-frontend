@@ -24,8 +24,6 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    this.oidcSecurityService
-      .logoff()
-      .subscribe((result) => console.log('Logout result:', result));
+    this.oidcSecurityService.logoff().subscribe();
   }
 }
