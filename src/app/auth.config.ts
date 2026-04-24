@@ -7,15 +7,15 @@ function getEnvVar(key: string, defaultValue: string): string {
 }
 
 const apiUrl = getEnvVar('NG_APP_API_URL', 'http://localhost:8080');
-const authUrl = getEnvVar('NG_APP_AUTH_URL', 'http://localhost:8180');
-const clientId = getEnvVar('NG_APP_CLIENT_ID', 'front');
+const authUrl = getEnvVar('NG_APP_AUTH_URL', 'https://dev-lesson.eu.auth0.com');
+const clientId = getEnvVar('NG_APP_CLIENT_ID', '');
 
 export const authConfig: OpenIdConfiguration = {
-  authority: `${authUrl}/realms/app`,
+  authority: authUrl,
   redirectUrl: window.location.origin,
   postLogoutRedirectUri: window.location.origin,
   clientId: clientId,
-  scope: 'openid',
+  scope: 'openid profile email',
   disablePkce: false,
   responseType: 'code',
   useRefreshToken: true,
@@ -24,4 +24,7 @@ export const authConfig: OpenIdConfiguration = {
   silentRenew: true,
   silentRenewUrl: `${window.location.origin}/silent-renew.html`,
   renewTimeBeforeTokenExpiresInSeconds: 30,
+  customParamsAuthRequest: {
+    audience: 'chuck-norris-api',
+  },
 };

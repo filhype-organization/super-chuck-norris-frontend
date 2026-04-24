@@ -1,6 +1,6 @@
 FROM caddy:alpine
 
-COPY target/artifact/* /srv
+COPY target/artifact/front-chuck-norris/browser /srv/browser
 COPY Caddyfile /etc/caddy/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

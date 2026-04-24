@@ -8,10 +8,40 @@ jobs:
   build:
     uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@main
     with:
-      build_platform: 'arm64'
+      build_platforms: '["amd64"]'
       container_build: true
       docker_image_name: 'leeson77/chuck-norris-frontend'
+      enable_java_build: false
+      enable_mkdocs_build: false
+      enable_timoni_build: false
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_USERNAME: ${{ secrets.LOGIN_DOCKER_HUB }}
       DOCKER_TOKEN: ${{ secrets.TOKEN_DOCKER_HUB }}
+
+  update-iac:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout IaC repo
+        uses: actions/checkout@v6
+        with:
+          repository: filhype-organization/iac-chucknorris-backend
+          token: ${{ secrets.IAC_REPO_TOKEN }}
+
+      - name: Update image tag in bundle
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          sed -i "s|tag: \".*\" // CI:frontend updates this line automatically.*|tag: \"${SHORT_SHA}\" // CI:frontend updates this line automatically — do not edit manually.|" \
+            bundle/bundle.cue
+
+      - name: Commit and push
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bundle/bundle.cue
+          git diff --staged --quiet || \
+            git commit -m "chore: deploy frontend image ${SHORT_SHA} [skip ci]"
+          git push
