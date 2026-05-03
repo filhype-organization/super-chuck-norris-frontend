@@ -25,7 +25,7 @@ jobs:
       - name: Checkout IaC repo
         uses: actions/checkout@v6
         with:
-          repository: filhype-organization/iac-chucknorris-backend
+          repository: filhype-organization/iac-chucknorris-frontend
           token: ${{ secrets.IAC_REPO_TOKEN }}
 
       - name: Update image tag in bundle
