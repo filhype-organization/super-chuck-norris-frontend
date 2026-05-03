@@ -6,9 +6,13 @@ function getEnvVar(key: string, defaultValue: string): string {
   return ngxEnv?.[key] || import.meta.env[key] || defaultValue;
 }
 
-const apiUrl = getEnvVar('NG_APP_API_URL', 'http://localhost:8080');
+const apiUrl = getEnvVar('NG_APP_API_URL', '');
 const authUrl = getEnvVar('NG_APP_AUTH_URL', 'https://dev-lesson.eu.auth0.com');
 const clientId = getEnvVar('NG_APP_CLIENT_ID', '');
+
+// When apiUrl is empty the Angular proxy is used: calls go to same origin /api/*
+// secureRoutes must match the actual browser request URL (startsWith check)
+const secureRoute = apiUrl || `${window.location.origin}/api`;
 
 export const authConfig: OpenIdConfiguration = {
   authority: authUrl,
@@ -21,5 +25,5 @@ export const authConfig: OpenIdConfiguration = {
   renewTimeBeforeTokenExpiresInSeconds: 30,
   ignoreNonceAfterRefresh: true,
   logLevel: LogLevel.None,
-  secureRoutes: [apiUrl],
+  secureRoutes: [secureRoute],
 };
