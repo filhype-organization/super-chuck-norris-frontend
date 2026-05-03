@@ -9,7 +9,7 @@ import { EnvironmentMock } from '../../test-helpers/environment-mock';
 describe('JokeAPI', () => {
   let service: JokeAPI;
   let httpMock: HttpTestingController;
-  const baseUrl = '/api/v1/jokes';
+  const baseUrl = '/api';
 
   beforeEach(() => {
     EnvironmentMock.setup();
