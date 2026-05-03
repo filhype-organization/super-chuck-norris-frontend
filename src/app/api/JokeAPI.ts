@@ -13,7 +13,7 @@ export class JokeAPI {
 
   private getApiUrl(): string {
     const ngxEnv = (globalThis as any)?._NGX_ENV_;
-    return ngxEnv?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || '';
+    return ngxEnv?.['NG_APP_API_URL'] || import.meta.env['NG_APP_API_URL'] || 'http://localhost:8080';
   }
 
   getRandomJoke(): Observable<Joke> {
