@@ -11,9 +11,6 @@ jobs:
       build_platforms: '["amd64"]'
       container_build: true
       docker_image_name: 'leeson77/chuck-norris-frontend'
-      enable_java_build: false
-      enable_mkdocs_build: false
-      enable_timoni_build: false
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_USERNAME: ${{ secrets.LOGIN_DOCKER_HUB }}
