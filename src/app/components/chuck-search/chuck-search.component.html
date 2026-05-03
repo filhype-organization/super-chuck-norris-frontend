@@ -1,36 +1,66 @@
-<div class="row text-center mt-1">
-  <div class="col-3">
-  </div>
-  <div class="col-6">
-    <img src="super_chuck_norris2.png" width="50%" alt="chuck">
-  </div>
-  <div class="col-3">
-  </div>
-</div>
+<div class="chuck-hero">
+  <div class="chuck-hero__bg"></div>
 
-<div class="row text-center mt-3">
-  <div class="col-3">
-  </div>
-  <div class="col-6">
-    <button type="button" class="btn btn-secondary btn-lg" (click)="jokeService.getRandomJoke()">Joke</button>
-  </div>
-  <div class="col-4">
-  </div>
-</div>
-
-@if (jokeService.randomJoke().joke !== ''){
-  <div class="row text-center mt-5">
-    <div class="col-4">
+  <div class="chuck-hero__body">
+    <!-- Image -->
+    <div class="chuck-hero__image-wrapper">
+      <div class="chuck-hero__image-ring"></div>
+      <img
+        src="super_chuck_norris2.png"
+        alt="Chuck Norris"
+        class="chuck-hero__image"
+        loading="eager"
+      />
     </div>
-    <div class="col-4">
-      <div class="card">
-        <div class="card-body">
-          <p class="card-text">{{jokeService.randomJoke().joke}}</p>
-        </div>
+
+    <!-- Copy -->
+    <div class="chuck-hero__copy">
+      <span class="chuck-hero__eyebrow">Le générateur officiel</span>
+      <h1 class="chuck-hero__title">
+        Chuck Norris<br>
+        <span class="chuck-hero__title--accent">Facts</span>
+      </h1>
+      <p class="chuck-hero__lead">
+        Chuck Norris n'a pas besoin d'Internet.<br>
+        Mais vous, si. Alors profitez-en.
+      </p>
+
+      <button
+        class="chuck-btn"
+        [class.chuck-btn--loading]="jokeService.loading()"
+        (click)="jokeService.getRandomJoke()"
+        [disabled]="jokeService.loading()">
+        @if (jokeService.loading()) {
+          <span class="chuck-btn__spinner"></span>
+          <span>Chargement...</span>
+        } @else {
+          <i class="bi bi-lightning-charge-fill"></i>
+          <span>Générer une blague</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Joke Display -->
+@if (jokeService.randomJoke().joke !== '') {
+  <div class="joke-stage">
+    <div class="joke-card">
+      <div class="joke-card__accent"></div>
+      <div class="joke-card__quote-icon">
+        <i class="bi bi-quote"></i>
       </div>
-    </div>
-    <div class="col-4">
+      <p class="joke-card__text">{{ jokeService.randomJoke().joke }}</p>
+      <div class="joke-card__footer">
+        <span class="joke-card__attr">— Chuck Norris Facts</span>
+        <button
+          class="joke-card__retry"
+          (click)="jokeService.getRandomJoke()"
+          [disabled]="jokeService.loading()">
+          <i class="bi bi-arrow-clockwise"></i>
+          Autre blague
+        </button>
+      </div>
     </div>
   </div>
 }
-
