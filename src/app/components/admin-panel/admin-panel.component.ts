@@ -9,5 +9,10 @@ import { AsyncPipe } from '@angular/common';
   imports: [AsyncPipe]
 })
 export class AdminPanelComponent {
-  protected userRoleService = inject(UserRoleService);
+  private userRoleService = inject(UserRoleService);
+
+  protected readonly userName$ = this.userRoleService.userName$();
+  protected readonly isAuthenticated$ = this.userRoleService.isAuthenticated$();
+  protected readonly isAdmin$ = this.userRoleService.isAdmin$();
+  protected readonly groups$ = this.userRoleService.groups$();
 }

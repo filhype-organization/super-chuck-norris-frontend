@@ -5,69 +5,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Development server (requires env vars — see below)
-ng serve
-
-# Build
-ng build                          # production
-ng build --configuration development
-
-# Tests
-ng test                           # all tests, with Karma watch
-ng test --include='**/JokeAPI.spec.ts'   # single spec file
+npm start          # Dev server on port 4200
+npm run build      # Production build → dist/front-chuck-norris/
+npm run watch      # Watch mode build
+npm test           # Run all tests via Vitest
 ```
 
-## Required environment variables
-
-Before running `ng serve` or tests that exercise auth, set:
-
+To run a single test file:
 ```bash
-export NG_APP_API_URL="http://localhost:8080"   # backend REST API; empty string uses dev proxy
-export NG_APP_AUTH_URL="http://localhost:8180"  # Keycloak realm URL (e.g. .../realms/app)
-export NG_APP_CLIENT_ID="front"
+npx vitest run src/app/services/joke.service.spec.ts
 ```
-
-In development without a local backend, the proxy (`proxy.conf.json`) forwards `/api` → `https://chuck.filhype.ovh`, so leaving `NG_APP_API_URL` empty works out of the box.
-
-At runtime (Docker/production), the build injects env vars through `_NGX_ENV_` (the `@ngx-env/builder` pattern). `JokeAPI` checks `globalThis._NGX_ENV_.NG_APP_API_URL` first, then falls back to the build-time value from `import.meta.env`.
 
 ## Architecture
 
-This is an **Angular 21 standalone application** (no NgModules). It uses `@ngx-env/builder` instead of the default Angular builder, which enables injecting env vars at build time via `import.meta.env.NG_APP_*` and at container startup via `_NGX_ENV_`.
+**Stack**: Angular 21 (standalone components), TypeScript, SCSS, Boosted (Orange Design System), Vitest.
 
-### Layer separation
+**Auth**: OIDC Code Flow with PKCE via `angular-auth-oidc-client`. Configured in `src/app/auth.config.ts` using runtime env vars. The `authInterceptor` attaches tokens automatically. `authGuard` and `adminGuard` protect routes.
 
-| Layer | Location | Responsibility |
-|---|---|---|
-| API | `src/app/api/` | Raw HTTP calls (`JokeAPI`). Returns Observables. Reads `_NGX_ENV_` for the base URL. |
-| Service | `src/app/services/` | State management using Angular signals (`JokeService`). Auth/role state (`UserRoleService`). |
-| Components | `src/app/components/` | UI only; inject services. |
-| Guards | `src/app/guards/` | `authGuard` (OIDC check + redirect to login), `adminGuard` (checks `UserRoleService.userInfo$` for `isAdmin`). |
+**State management**: Angular Signals in `JokeService` (`src/app/services/joke.service.ts`). All mutable state (`randomJoke`, `jokes`, `loading`, `error`, pagination) lives there as signals; derived state uses `computed()`. Components inject the service and read signals directly — no NgRx, no BehaviorSubjects.
 
-### Authentication
+**API layer**: `JokeAPI` (`src/app/api/JokeAPI.ts`) is a thin HTTP client for `/api/v1/jokes`. Pagination uses `?page=X&size=Y` query params and reads total count from the `X-Total-Count` response header. `JokeService` orchestrates calls and updates signals via `tap`/`catchError`.
 
-Authentication uses `angular-auth-oidc-client` with Keycloak. The OIDC config lives in `src/app/auth.config.ts`. The `authInterceptor()` from the library automatically attaches Bearer tokens to HTTP requests for routes listed in `secureRoutes`.
+**Routing** (`src/app/app.routes.ts`):
+- `/` → `HomeComponent` (requires auth)
+- `/admin-joke` → `JokeAdminComponent` (requires auth + admin role)
+- `/admin-protected` → `AdminPanelComponent` (requires auth)
+- `/unauthorized` → `UnauthorizedComponent`
 
-`UserRoleService` wraps `OidcSecurityService` and normalises several Keycloak token structures (`groups`, `roles`, `realm_access.roles`, `resource_access[clientId].roles`) into a single `UserInfo` object. Always use `UserRoleService` rather than reading from `OidcSecurityService` directly.
+**User roles**: `UserRoleService` (`src/app/services/user-role.service.ts`) extracts `userName` and `isAdmin` from the OIDC token. It handles multiple claim shapes (`upn`, `preferred_username`, `realm_access.roles`, `groups`) to stay compatible with different OIDC providers (Keycloak, etc.).
 
-### Signals pattern
+## Runtime Environment Variables
 
-`JokeService` manages all joke state with private `signal()`s exposed as read-only `computed()` properties. Components read `jokeService.jokes()`, `jokeService.loading()`, etc. without subscribing manually. Do not add `BehaviorSubject`/`ReplaySubject` to this service — keep the signals pattern consistent.
+Variables are injected at container startup via `entrypoint.sh` into `ngx-env.js`, then read via the `@ngx-env/builder` adapter (prefix `NG_APP_`). In tests, use the `EnvironmentMock` helper from `src/test-helpers/` — `test-init.ts` is auto-imported by Vitest to set up `_NGX_ENV_` globals.
 
-### Routes
+| Variable | Default |
+|---|---|
+| `NG_APP_API_URL` | `http://localhost:8080` |
+| `NG_APP_AUTH_URL` | `http://localhost:8180` |
+| `NG_APP_CLIENT_ID` | *(must be set)* |
 
-```
-/                  → HomeComponent          (authGuard)
-/admin-joke        → JokeAdminComponent     (authGuard + adminGuard)
-/admin-protected   → AdminPanelComponent    (authGuard)
-/unauthorized      → UnauthorizedComponent  (public)
-/forbidden         → UnauthorizedComponent  (public)
-```
+## Deployment
 
-### UI
-
-Uses **Boosted** (Orange's Bootstrap fork) via `node_modules/boosted`. Custom styles are in `src/styles.scss`.
-
-## Testing
-
-Spec files must import `../../test-helpers/test-init` as the first line (initialises `globalThis._NGX_ENV_` before any service is instantiated). Use `EnvironmentMock.setup()`/`EnvironmentMock.cleanup()` in `beforeEach`/`afterEach` to control env vars per test. The backend is mocked with `HttpClientTestingModule` + `HttpTestingController`; do not use a real HTTP client in unit tests.
+The app is served by an Alpine Caddy container. The Dockerfile expects the build artifact at `target/artifact/front-chuck-norris/browser`. The CI workflow (`.github/workflows/github-actions.yml`) builds a multi-arch Docker image, pushes to `leeson77/chuck-norris-frontend`, and updates the IaC repo's image tag on merges to `main`/`dev`.

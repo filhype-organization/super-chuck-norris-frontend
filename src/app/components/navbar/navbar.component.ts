@@ -13,10 +13,11 @@ import { UserRoleService } from '../../services/user-role.service';
 export class NavbarComponent {
   private oidcSecurityService = inject(OidcSecurityService);
   private userRoleService = inject(UserRoleService);
-
-  isAdmin$ = this.userRoleService.isAdmin$;
-  isAuthenticated$ = this.userRoleService.isAuthenticated$;
-  userName$ = this.userRoleService.userName$;
+  
+  // Utiliser directement les observables du service
+  isAdmin$ = this.userRoleService.isAdmin$();
+  isAuthenticated$ = this.userRoleService.isAuthenticated$();
+  userName$ = this.userRoleService.userName$();
 
   login(): void {
     this.oidcSecurityService.authorize();

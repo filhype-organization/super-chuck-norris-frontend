@@ -3,12 +3,13 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     uses: filhype-organization/universal-devops-action/.github/workflows/github-actions.yml@main
     with:
-      build_platforms: '["amd64", "arm64"]'
+      build_platforms: '["amd64"]'
       container_build: true
       docker_image_name: 'leeson77/chuck-norris-frontend'
     secrets:
@@ -19,7 +20,7 @@ jobs:
   update-iac:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout IaC repo
         uses: actions/checkout@v6

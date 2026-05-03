@@ -1,20 +1,23 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { UserRoleService } from '../services/user-role.service';
-import { map, first } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 export const adminGuard: CanActivateFn = (route, state) => {
   const userRoleService = inject(UserRoleService);
   const router = inject(Router);
-
+  
   return userRoleService.userInfo$.pipe(
-    first(),
-    map((userInfo) => {
-      if (!userInfo.isAuthenticated || !userInfo.isAdmin) {
+    tap((userInfo) => {
+      
+      if (!userInfo.isAuthenticated) {
         router.navigate(['/unauthorized']);
-        return false;
+      } else if (!userInfo.isAdmin) {
+        router.navigate(['/unauthorized']);
       }
-      return true;
+    }),
+    map((userInfo) => {
+      return userInfo.isAuthenticated && userInfo.isAdmin;
     })
   );
 };

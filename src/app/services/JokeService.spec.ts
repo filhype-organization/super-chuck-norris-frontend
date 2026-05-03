@@ -95,12 +95,7 @@ describe('JokeService', () => {
   });
 
   it('should calculate total pages correctly', () => {
-    const mockJokes: Joke[] = [
-      { id: 1, joke: 'Joke 1', created_at: new Date() },
-      { id: 2, joke: 'Joke 2', created_at: new Date() }
-    ];
-
-    jokeApiSpy.getAllJokes.mockReturnValue(of({ jokes: mockJokes, total: 25 }));
+    jokeApiSpy.getAllJokes.mockReturnValue(of({ jokes: [], total: 25 }));
 
     service.getAllJokes(0, 10);
 

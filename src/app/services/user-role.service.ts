@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { BehaviorSubject, Observable, combineLatest, map, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface UserInfo {
@@ -24,11 +24,6 @@ export class UserRoleService {
   });
 
   public userInfo$ = this.userInfoSubject.asObservable();
-
-  readonly isAdmin$ = this.userInfo$.pipe(map(info => info.isAdmin), distinctUntilChanged());
-  readonly userName$ = this.userInfo$.pipe(map(info => info.userName), distinctUntilChanged());
-  readonly isAuthenticated$ = this.userInfo$.pipe(map(info => info.isAuthenticated), distinctUntilChanged());
-  readonly groups$ = this.userInfo$.pipe(map(info => info.groups));
 
   constructor() {
     combineLatest([
@@ -99,8 +94,24 @@ export class UserRoleService {
     return false;
   }
 
+  public isAdmin$(): Observable<boolean> {
+    return this.userInfo$.pipe(map(info => info.isAdmin));
+  }
+
+  public userName$(): Observable<string> {
+    return this.userInfo$.pipe(map(info => info.userName));
+  }
+
+  public isAuthenticated$(): Observable<boolean> {
+    return this.userInfo$.pipe(map(info => info.isAuthenticated));
+  }
+
+  public groups$(): Observable<string[]> {
+    return this.userInfo$.pipe(map(info => info.groups));
+  }
+
   public hasRole(role: string): Observable<boolean> {
-    return this.groups$.pipe(map(groups => groups.includes(role)));
+    return this.userInfo$.pipe(map(info => info.groups.includes(role)));
   }
 
   public getCurrentUserInfo(): UserInfo {
