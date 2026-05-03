@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://chuck.filhype.ovh",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
