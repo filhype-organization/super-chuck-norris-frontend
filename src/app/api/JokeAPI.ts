@@ -9,7 +9,7 @@ import { Joke } from '../models/Joke';
 })
 export class JokeAPI {
   #http = inject(HttpClient);
-  #baseUri = '/api/v1/jokes';
+  #baseUri = '/api';
 
   private getApiUrl(): string {
     const ngxEnv = (globalThis as any)?._NGX_ENV_;
