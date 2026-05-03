@@ -3,6 +3,9 @@
 
     encode gzip
 
+    @no-cache path /ngx-env.js /index.html
+    header @no-cache Cache-Control "no-cache, no-store, must-revalidate"
+
     try_files {path} /index.html
 
     file_server
