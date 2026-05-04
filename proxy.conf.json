@@ -1,8 +1,9 @@
 {
   "/api": {
-    "target": "https://chuck.filhype.ovh",
-    "secure": true,
+    "target": "http://localhost:8080",
+    "pathRewrite": { "^/api": "" },
+    "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "logLevel": "warn"
   }
 }

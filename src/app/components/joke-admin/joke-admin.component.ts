@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JokeService } from '../../services/JokeService';
@@ -16,9 +16,23 @@ export class JokeAdminComponent implements OnInit {
   showModal = signal(false);
   editingJoke = signal<Joke | null>(null);
   isEditing = signal(false);
-
   currentJoke = signal(new Joke());
   jokeText = signal('');
+  filterText = signal('');
+  jokeToDelete = signal<Joke | null>(null);
+  successMessage = signal<string | null>(null);
+
+  readonly maxChars = 500;
+
+  charCount = computed(() => this.jokeText().length);
+
+  filteredJokes = computed(() => {
+    const filter = this.filterText().toLowerCase().trim();
+    if (!filter) return this.jokeService.jokes();
+    return this.jokeService.jokes().filter(j =>
+      j.joke.toLowerCase().includes(filter)
+    );
+  });
 
   ngOnInit() {
     this.jokeService.getAllJokes();
@@ -49,70 +63,73 @@ export class JokeAdminComponent implements OnInit {
   }
 
   saveJoke() {
-    if (!this.jokeText().trim()) {
-      return;
-    }
+    if (!this.jokeText().trim() || this.charCount() > this.maxChars) return;
 
-    const joke = { ...this.currentJoke(), joke: this.jokeText() };
+    const joke = { ...this.currentJoke(), joke: this.jokeText().trim() };
 
     if (this.isEditing()) {
       const editingJoke = this.editingJoke();
-      if (editingJoke && editingJoke.id !== null) {
+      if (editingJoke?.id !== null && editingJoke?.id !== undefined) {
         this.jokeService.updateJoke(editingJoke.id, joke);
+        this.showToast('Blague modifiée avec succès !');
       }
     } else {
       this.jokeService.createJoke(joke);
+      this.showToast('Blague ajoutée avec succès !');
     }
 
     this.closeModal();
   }
 
-  deleteJoke(joke: Joke) {
-    if (joke.id !== null && confirm(`Êtes-vous sûr de vouloir supprimer cette blague ?`)) {
+  requestDelete(joke: Joke) {
+    this.jokeToDelete.set(joke);
+  }
+
+  confirmDelete() {
+    const joke = this.jokeToDelete();
+    if (joke?.id !== null && joke?.id !== undefined) {
       this.jokeService.deleteJoke(joke.id);
+      this.showToast('Blague supprimée avec succès !');
     }
+    this.jokeToDelete.set(null);
+  }
+
+  cancelDelete() {
+    this.jokeToDelete.set(null);
+  }
+
+  clearFilter() {
+    this.filterText.set('');
+  }
+
+  private showToast(message: string) {
+    this.successMessage.set(message);
+    setTimeout(() => this.successMessage.set(null), 3500);
   }
 
   updateJokeText(event: Event) {
-    const target = event.target as HTMLTextAreaElement;
-    this.jokeText.set(target.value);
+    this.jokeText.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  updateFilterText(event: Event) {
+    this.filterText.set((event.target as HTMLInputElement).value);
   }
 
   changePageSize(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const size = parseInt(target.value, 10);
-    this.jokeService.setPageSize(size);
+    this.jokeService.setPageSize(parseInt((event.target as HTMLSelectElement).value, 10));
   }
 
-  goToPage(page: number) {
-    this.jokeService.goToPage(page);
-  }
-
-  goToNextPage() {
-    this.jokeService.goToNextPage();
-  }
-
-  goToPreviousPage() {
-    this.jokeService.goToPreviousPage();
-  }
+  goToPage(page: number) { this.jokeService.goToPage(page); }
+  goToNextPage() { this.jokeService.goToNextPage(); }
+  goToPreviousPage() { this.jokeService.goToPreviousPage(); }
 
   getPageNumbers(): number[] {
     const totalPages = this.jokeService.totalPages();
     const currentPage = this.jokeService.currentPage();
-    const pages: number[] = [];
-
-    const maxVisiblePages = 5;
-    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage < maxVisiblePages - 1) {
-      startPage = Math.max(0, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
+    const maxVisible = 5;
+    let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages - 1, start + maxVisible - 1);
+    if (end - start < maxVisible - 1) start = Math.max(0, end - maxVisible + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 }

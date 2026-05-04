@@ -1,17 +1,69 @@
-<div class="container-fluid mt-4">
-  <!-- En-tête -->
-  <div class="row mb-4">
-    <div class="col">
-      <h1 class="h2">Administration des Blagues</h1>
+<!-- Toast notification -->
+@if (successMessage()) {
+  <div class="admin-toast" role="alert" aria-live="polite">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ successMessage() }}
+  </div>
+}
+
+<!-- Hero Header -->
+<div class="admin-hero">
+  <div class="admin-hero__glow"></div>
+  <div class="container-xxl">
+    <div class="admin-hero__inner">
+      <div class="admin-hero__info">
+        <span class="admin-badge">
+          <i class="bi bi-shield-fill-check me-1"></i>ADMINISTRATION
+        </span>
+        <h1 class="admin-hero__title">Gestion des Blagues</h1>
+        <p class="admin-hero__subtitle">L'arsenal comique de Chuck Norris, sous votre contrôle</p>
+      </div>
+      <div class="admin-hero__stats">
+        <div class="stat-card">
+          <span class="stat-card__number">{{ jokeService.totalJokes() }}</span>
+          <span class="stat-card__label">Total</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__number">{{ jokeService.totalPages() }}</span>
+          <span class="stat-card__label">Pages</span>
+        </div>
+        <div class="stat-card stat-card--highlight">
+          <span class="stat-card__number">{{ filteredJokes().length }}</span>
+          <span class="stat-card__label">Affichées</span>
+        </div>
+      </div>
     </div>
-    <div class="col-auto d-flex align-items-center gap-3">
-      <!-- Sélecteur de taille de page -->
-      <div class="d-flex align-items-center">
-        <label for="pageSize" class="form-label me-2 mb-0 text-nowrap">Éléments par page:</label>
-        <select 
-          id="pageSize" 
-          class="form-select form-select-sm" 
-          style="width: auto;"
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="container-xxl py-4">
+
+  <!-- Toolbar -->
+  <div class="admin-toolbar mb-4">
+    <div class="admin-toolbar__search">
+      <div class="search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input
+          type="text"
+          class="admin-search-input"
+          placeholder="Rechercher dans les blagues..."
+          [value]="filterText()"
+          (input)="updateFilterText($event)"
+        />
+        @if (filterText()) {
+          <button class="search-clear" (click)="clearFilter()" aria-label="Effacer la recherche">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
+      </div>
+    </div>
+    <div class="admin-toolbar__actions">
+      <div class="page-size-control">
+        <label for="pageSize">Par page</label>
+        <select
+          id="pageSize"
+          class="admin-select"
           [value]="jokeService.pageSize()"
           (change)="changePageSize($event)">
           <option value="5">5</option>
@@ -20,196 +72,224 @@
           <option value="50">50</option>
         </select>
       </div>
-      <!-- Bouton d'ajout -->
-      <button 
-        type="button" 
-        class="btn btn-primary"
-        (click)="openAddModal()">
-        <i class="bi bi-plus-circle me-2"></i>
-        Ajouter une blague
+      <button class="btn-add-joke" (click)="openAddModal()">
+        <i class="bi bi-plus-lg me-2"></i>
+        Nouvelle blague
       </button>
     </div>
   </div>
 
-  <!-- Chargement -->
+  <!-- Loading -->
   @if (jokeService.loading()) {
-    <div class="d-flex justify-content-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <span>Chargement en cours...</span>
     </div>
   }
 
-  <!-- Erreur -->
+  <!-- Error -->
   @if (jokeService.error()) {
-    <div class="alert alert-danger" role="alert">
-      <i class="bi bi-exclamation-triangle me-2"></i>
+    <div class="error-alert" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
       {{ jokeService.error() }}
     </div>
   }
 
-  <!-- Tableau des blagues -->
-  @if (!jokeService.loading() && jokeService.jokes().length > 0) {
-          <table class="table">
-            <thead class="table">
-              <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Blague</th>
-                <th scope="col">Date de création</th>
-                <th scope="col" class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (joke of jokeService.jokes(); track joke.id; let i = $index) {
-                <tr>
-                  <td>{{ i }}</td>
-                  <td>
-                    <div class="text-truncate" style="max-width: 400px;" [title]="joke.joke">
-                      {{ joke.joke }}
-                    </div>
-                  </td>
-                  <td>
-                    {{ joke.created_at | date:'short':'fr' }}
-                  </td>
-                  <td class="text-center">
-                      <button 
-                        type="button" 
-                        class="btn btn-primary"
-                        (click)="openEditModal(joke)"
-                        title="Modifier">
-                        Modifier
-                      </button>
-                      <button 
-                        type="button" 
-                        class="btn btn-danger"
-                        (click)="deleteJoke(joke)"
-                        title="Supprimer">
-                        Supprimer
-                      </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-      
-      <!-- Pagination -->
-      @if (jokeService.totalPages() > 1) {
-          <nav aria-label="Pagination des blagues">
-            <ul class="pagination justify-content-center">
-              <!-- Bouton Previous -->
-              <li class="page-item" [class.disabled]="!jokeService.hasPreviousPage()">
-                <button 
-                  class="page-link" 
-                  (click)="goToPreviousPage()"
-                  [disabled]="!jokeService.hasPreviousPage()">
-                  Previous
-                </button>
-              </li>
-              
-              <!-- Pages numérotées -->
-              @for (pageNum of getPageNumbers(); track pageNum) {
-                <li class="page-item" [class.active]="pageNum === jokeService.currentPage()">
-                  <button 
-                    class="page-link" 
-                    (click)="goToPage(pageNum)"
-                    [attr.aria-current]="pageNum === jokeService.currentPage() ? 'page' : null">
-                    {{ pageNum + 1 }}
+  <!-- Table -->
+  @if (!jokeService.loading() && filteredJokes().length > 0) {
+    <div class="jokes-table-wrapper">
+      <table class="jokes-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th>Blague</th>
+            <th class="col-date">Créée le</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (joke of filteredJokes(); track joke.id; let i = $index) {
+            <tr class="joke-row">
+              <td class="col-num">
+                <span class="row-index">
+                  {{ jokeService.currentPage() * jokeService.pageSize() + i + 1 }}
+                </span>
+              </td>
+              <td class="joke-text-cell">
+                <p class="joke-text" [title]="joke.joke">{{ joke.joke }}</p>
+              </td>
+              <td class="col-date">
+                <span class="date-badge">{{ joke.created_at | date:'dd/MM/yyyy' }}</span>
+              </td>
+              <td class="col-actions">
+                <div class="action-buttons">
+                  <button class="btn-action btn-edit" (click)="openEditModal(joke)" title="Modifier">
+                    <i class="bi bi-pencil-fill"></i>
                   </button>
-                </li>
-              }
-              
-              <!-- Bouton Next -->
-              <li class="page-item" [class.disabled]="!jokeService.hasNextPage()">
-                <button 
-                  class="page-link" 
-                  (click)="goToNextPage()"
-                  [disabled]="!jokeService.hasNextPage()">
-                  Next
-                </button>
-              </li>
-            </ul>
-          </nav>
-      }
+                  <button class="btn-action btn-delete" (click)="requestDelete(joke)" title="Supprimer">
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (jokeService.totalPages() > 1) {
+      <div class="pagination-wrapper">
+        <span class="pagination-info">
+          Page <strong>{{ jokeService.currentPage() + 1 }}</strong> sur <strong>{{ jokeService.totalPages() }}</strong>
+          &nbsp;·&nbsp; {{ jokeService.totalJokes() }} blagues au total
+        </span>
+        <nav class="admin-pagination" aria-label="Navigation entre les pages">
+          <button
+            class="page-btn page-btn--nav"
+            (click)="goToPreviousPage()"
+            [disabled]="!jokeService.hasPreviousPage()"
+            aria-label="Page précédente">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          @for (pageNum of getPageNumbers(); track pageNum) {
+            <button
+              class="page-btn"
+              [class.page-btn--active]="pageNum === jokeService.currentPage()"
+              (click)="goToPage(pageNum)"
+              [attr.aria-current]="pageNum === jokeService.currentPage() ? 'page' : null">
+              {{ pageNum + 1 }}
+            </button>
+          }
+          <button
+            class="page-btn page-btn--nav"
+            (click)="goToNextPage()"
+            [disabled]="!jokeService.hasNextPage()"
+            aria-label="Page suivante">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </nav>
+      </div>
+    }
   }
 
-  <!-- Aucune blague -->
-  @if (!jokeService.loading() && jokeService.jokes().length === 0) {
-    <div class="text-center py-5">
-      <div class="mb-3">
-        <i class="bi bi-emoji-laugh display-1 text-muted"></i>
+  <!-- Empty state: aucune blague -->
+  @if (!jokeService.loading() && jokeService.jokes().length === 0 && !jokeService.error()) {
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="bi bi-emoji-laughing"></i>
       </div>
-      <h4 class="text-muted">Aucune blague trouvée</h4>
-      <p class="text-muted">Commencez par ajouter votre première blague Chuck Norris !</p>
-      <button 
-        type="button" 
-        class="btn btn-primary"
-        (click)="openAddModal()">
-        <i class="bi bi-plus-circle me-2"></i>
+      <h3>Aucune blague pour le moment</h3>
+      <p>Commencez par ajouter la première blague de l'arsenal Chuck Norris !</p>
+      <button class="btn-add-joke" (click)="openAddModal()">
+        <i class="bi bi-plus-lg me-2"></i>
         Ajouter une blague
       </button>
     </div>
   }
+
+  <!-- Empty state: filtre sans résultat -->
+  @if (!jokeService.loading() && jokeService.jokes().length > 0 && filteredJokes().length === 0) {
+    <div class="empty-state empty-state--filter">
+      <div class="empty-state__icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <h3>Aucun résultat</h3>
+      <p>Aucune blague ne correspond à "<strong>{{ filterText() }}</strong>"</p>
+      <button class="btn-outline" (click)="clearFilter()">
+        <i class="bi bi-x-circle me-2"></i>
+        Effacer le filtre
+      </button>
+    </div>
+  }
+
 </div>
 
-<!-- Modal pour ajouter/modifier une blague -->
+<!-- ===== Modal Ajout / Édition ===== -->
 @if (showModal()) {
-  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            @if (isEditing()) {
-              <i class="bi bi-pencil me-2"></i>Modifier la blague
-            } @else {
-              <i class="bi bi-plus-circle me-2"></i>Ajouter une blague
-            }
-          </h5>
-          <button 
-            type="button" 
-            class="btn-close" 
-            (click)="closeModal()"
-            aria-label="Fermer">
-          </button>
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="admin-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <div class="admin-modal__header">
+        <div class="admin-modal__title-group">
+          <div class="modal-icon" [class.modal-icon--edit]="isEditing()">
+            <i class="bi" [class.bi-pencil-fill]="isEditing()" [class.bi-plus-lg]="!isEditing()"></i>
+          </div>
+          <div>
+            <h2 class="admin-modal__title">
+              {{ isEditing() ? 'Modifier la blague' : 'Nouvelle blague' }}
+            </h2>
+            <p class="admin-modal__subtitle">
+              {{ isEditing() ? 'Modifiez le texte de la blague sélectionnée' : 'Saisissez une nouvelle blague Chuck Norris' }}
+            </p>
+          </div>
         </div>
-        <div class="modal-body">
-          <form (ngSubmit)="saveJoke()">
-            <div class="mb-3">
-              <label for="jokeText" class="form-label fw-bold">
-                Texte de la blague <span class="text-danger">*</span>
-              </label>
-              <textarea 
-                id="jokeText"
-                class="form-control" 
-                rows="4"
-                [value]="jokeText()"
-                (input)="updateJokeText($event)"
-                placeholder="Entrez le texte de la blague Chuck Norris..."
-                required>
-              </textarea>
-            </div>
-          </form>
+        <button class="modal-close" (click)="closeModal()" aria-label="Fermer">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="admin-modal__body">
+        <div class="form-field">
+          <label for="jokeText" class="form-field__label">
+            Texte de la blague <span class="required">*</span>
+          </label>
+          <textarea
+            id="jokeText"
+            class="form-field__textarea"
+            [class.form-field__textarea--error]="charCount() > maxChars"
+            rows="5"
+            [value]="jokeText()"
+            (input)="updateJokeText($event)"
+            placeholder="Chuck Norris peut compter jusqu'à l'infini... deux fois."
+            required>
+          </textarea>
+          <div class="form-field__footer">
+            <span class="char-hint">Soyez créatif et mémorable !</span>
+            <span
+              class="char-count"
+              [class.char-count--warning]="charCount() > maxChars * 0.8"
+              [class.char-count--error]="charCount() > maxChars">
+              {{ charCount() }} / {{ maxChars }}
+            </span>
+          </div>
         </div>
-        <div class="modal-footer">
-          <button 
-            type="button" 
-            class="btn btn-secondary" 
-            (click)="closeModal()">
-            <i class="bi bi-x-circle me-2"></i>
-            Annuler
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-primary"
-            (click)="saveJoke()"
-            [disabled]="!jokeText().trim()">
-            <i class="bi bi-check-circle me-2"></i>
-            @if (isEditing()) {
-              Modifier
-            } @else {
-              Ajouter
-            }
-          </button>
-        </div>
+      </div>
+
+      <div class="admin-modal__footer">
+        <button class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button
+          class="btn-save"
+          (click)="saveJoke()"
+          [disabled]="!jokeText().trim() || charCount() > maxChars">
+          <i class="bi me-2" [class.bi-check-lg]="isEditing()" [class.bi-plus-lg]="!isEditing()"></i>
+          {{ isEditing() ? 'Enregistrer' : 'Ajouter' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===== Confirmation de suppression ===== -->
+@if (jokeToDelete()) {
+  <div class="modal-overlay">
+    <div class="confirm-dialog" role="alertdialog" aria-modal="true">
+      <div class="confirm-dialog__icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <h3 class="confirm-dialog__title">Supprimer cette blague ?</h3>
+      <p class="confirm-dialog__body">
+        Cette action est irréversible. La blague sera définitivement retirée de l'arsenal.
+      </p>
+      <div class="confirm-dialog__preview">
+        <i class="bi bi-quote me-1"></i>
+        {{ jokeToDelete()!.joke }}
+      </div>
+      <div class="confirm-dialog__actions">
+        <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash3-fill me-2"></i>
+          Supprimer
+        </button>
       </div>
     </div>
   </div>

@@ -6,9 +6,16 @@ function getEnvVar(key: string, defaultValue: string): string {
   return ngxEnv?.[key] || import.meta.env[key] || defaultValue;
 }
 
-const apiUrl = getEnvVar('NG_APP_API_URL', 'http://localhost:8080');
+const apiUrl = getEnvVar('NG_APP_API_URL', '');
 const authUrl = getEnvVar('NG_APP_AUTH_URL', 'https://dev-lesson.eu.auth0.com');
 const clientId = getEnvVar('NG_APP_CLIENT_ID', '');
+
+// authInterceptor uses req.url.startsWith(route).
+// Proxy mode (apiUrl empty): HttpClient sends relative URLs → req.url = '/api/...'
+//   → secureRoute must be '/api'
+// Direct mode (apiUrl set):  HttpClient sends absolute URLs → req.url = 'http://host/...'
+//   → secureRoute must be the full apiUrl
+const secureRoute = apiUrl || '/api';
 
 export const authConfig: OpenIdConfiguration = {
   authority: authUrl,
@@ -16,15 +23,10 @@ export const authConfig: OpenIdConfiguration = {
   postLogoutRedirectUri: window.location.origin,
   clientId: clientId,
   scope: 'openid profile email',
-  disablePkce: false,
   responseType: 'code',
   useRefreshToken: true,
-  logLevel: LogLevel.Warn,
-  secureRoutes: [apiUrl],
-  silentRenew: true,
-  silentRenewUrl: `${window.location.origin}/silent-renew.html`,
   renewTimeBeforeTokenExpiresInSeconds: 30,
-  customParamsAuthRequest: {
-    audience: 'chuck-norris-api',
-  },
+  ignoreNonceAfterRefresh: true,
+  logLevel: LogLevel.None,
+  secureRoutes: [secureRoute],
 };

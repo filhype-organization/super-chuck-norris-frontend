@@ -3,6 +3,7 @@
   "version": "1.0.4-SNAPSHOT",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/generate-ngx-env.js",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
