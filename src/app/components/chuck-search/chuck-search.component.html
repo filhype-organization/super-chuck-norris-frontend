@@ -20,10 +20,18 @@
         Chuck Norris<br>
         <span class="chuck-hero__title--accent">Facts</span>
       </h1>
-      <p class="chuck-hero__lead">
-        Chuck Norris n'a pas besoin d'Internet.<br>
-        Mais vous, si. Alors profitez-en.
-      </p>
+
+      @if (jokeService.randomJoke().joke !== '') {
+        <div class="chuck-joke-inline">
+          <i class="bi bi-quote chuck-joke-inline__quote"></i>
+          <p class="chuck-joke-inline__text">{{ jokeService.randomJoke().joke }}</p>
+        </div>
+      } @else {
+        <p class="chuck-hero__lead">
+          Chuck Norris n'a pas besoin d'Internet.<br>
+          Mais vous, si. Alors profitez-en.
+        </p>
+      }
 
       <button
         class="chuck-btn"
@@ -33,6 +41,9 @@
         @if (jokeService.loading()) {
           <span class="chuck-btn__spinner"></span>
           <span>Chargement...</span>
+        } @else if (jokeService.randomJoke().joke !== '') {
+          <i class="bi bi-arrow-clockwise"></i>
+          <span>Autre blague</span>
         } @else {
           <i class="bi bi-lightning-charge-fill"></i>
           <span>Générer une blague</span>
@@ -41,26 +52,3 @@
     </div>
   </div>
 </div>
-
-<!-- Joke Display -->
-@if (jokeService.randomJoke().joke !== '') {
-  <div class="joke-stage">
-    <div class="joke-card">
-      <div class="joke-card__accent"></div>
-      <div class="joke-card__quote-icon">
-        <i class="bi bi-quote"></i>
-      </div>
-      <p class="joke-card__text">{{ jokeService.randomJoke().joke }}</p>
-      <div class="joke-card__footer">
-        <span class="joke-card__attr">— Chuck Norris Facts</span>
-        <button
-          class="joke-card__retry"
-          (click)="jokeService.getRandomJoke()"
-          [disabled]="jokeService.loading()">
-          <i class="bi bi-arrow-clockwise"></i>
-          Autre blague
-        </button>
-      </div>
-    </div>
-  </div>
-}

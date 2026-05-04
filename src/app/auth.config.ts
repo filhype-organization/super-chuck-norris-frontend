@@ -10,9 +10,12 @@ const apiUrl = getEnvVar('NG_APP_API_URL', '');
 const authUrl = getEnvVar('NG_APP_AUTH_URL', 'https://dev-lesson.eu.auth0.com');
 const clientId = getEnvVar('NG_APP_CLIENT_ID', '');
 
-// When apiUrl is empty the Angular proxy is used: calls go to same origin /api/*
-// secureRoutes must match the actual browser request URL (startsWith check)
-const secureRoute = apiUrl || `${window.location.origin}/api`;
+// authInterceptor uses req.url.startsWith(route).
+// Proxy mode (apiUrl empty): HttpClient sends relative URLs → req.url = '/api/...'
+//   → secureRoute must be '/api'
+// Direct mode (apiUrl set):  HttpClient sends absolute URLs → req.url = 'http://host/...'
+//   → secureRoute must be the full apiUrl
+const secureRoute = apiUrl || '/api';
 
 export const authConfig: OpenIdConfiguration = {
   authority: authUrl,

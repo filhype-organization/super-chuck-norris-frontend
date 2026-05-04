@@ -9,7 +9,7 @@ $gray-text: #595959;
 // ──────────────────────────────────────────────
 .chuck-hero {
   position: relative;
-  min-height: 92vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -127,6 +127,34 @@ $gray-text: #595959;
   }
 }
 
+// ──────────────────────────────────────────────
+// Inline joke card (inside hero)
+// ──────────────────────────────────────────────
+.chuck-joke-inline {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(241, 110, 0, 0.25);
+  border-left: 4px solid $orange;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  animation: cardSlideUp 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  &__quote {
+    font-size: 2rem;
+    color: rgba(241, 110, 0, 0.35);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  &__text {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    line-height: 1.75;
+    margin: 0;
+  }
+}
+
 @keyframes ringRotate {
   to { transform: rotate(360deg); }
 }
@@ -203,99 +231,6 @@ $gray-text: #595959;
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-// ──────────────────────────────────────────────
-// Joke stage
-// ──────────────────────────────────────────────
-.joke-stage {
-  background: #f9f9f9;
-  border-top: 3px solid $orange;
-  padding: 3.5rem 1.5rem;
-  display: flex;
-  justify-content: center;
-}
-
-.joke-card {
-  background: $white;
-  border-radius: 16px;
-  padding: 2.5rem 2.75rem;
-  max-width: 720px;
-  width: 100%;
-  position: relative;
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.04),
-    0 20px 50px rgba(0, 0, 0, 0.08);
-  animation: cardSlideUp 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
-  overflow: hidden;
-
-  &__accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, $orange 0%, $orange-hover 100%);
-    border-radius: 4px 0 0 4px;
-  }
-
-  &__quote-icon {
-    font-size: 3rem;
-    color: rgba(241, 110, 0, 0.2);
-    line-height: 1;
-    margin-bottom: 0.75rem;
-
-    i { display: block; }
-  }
-
-  &__text {
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    line-height: 1.75;
-    color: #111;
-    margin: 0 0 2rem;
-    font-weight: 400;
-  }
-
-  &__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    border-top: 1px solid #f0f0f0;
-    padding-top: 1.25rem;
-  }
-
-  &__attr {
-    font-size: 0.82rem;
-    color: #aaa;
-    font-style: italic;
-  }
-
-  &__retry {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: none;
-    border: 2px solid $orange;
-    color: $orange;
-    padding: 0.45rem 1rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover:not(:disabled) {
-      background: $orange;
-      color: $white;
-    }
-
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    i { transition: transform 0.3s; }
-    &:hover i { transform: rotate(180deg); }
-  }
 }
 
 @keyframes cardSlideUp {
