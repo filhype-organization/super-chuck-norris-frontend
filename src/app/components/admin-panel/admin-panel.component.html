@@ -1,14 +1,14 @@
 
 <div class="admin-panel">
-    <h2>Panneau d'administration</h2>
-    <p>Bienvenue {{ userName$ | async }}, vous avez accès au panneau admin.</p>
+    <h2>Administration Panel</h2>
+    <p>Welcome {{ userName$ | async }}, you have access to the admin panel.</p>
 
     <div class="user-info">
-        <h3>Informations utilisateur</h3>
-        <p><strong>Nom d'utilisateur:</strong> {{ userName$ | async }}</p>
-        <p><strong>Authentifié:</strong> {{ (isAuthenticated$ | async) ? 'Oui' : 'Non' }}</p>
-        <p><strong>Admin:</strong> {{ (isAdmin$ | async) ? 'Oui' : 'Non' }}</p>
-        <p><strong>Groupes:</strong></p>
+        <h3>User Information</h3>
+        <p><strong>Username:</strong> {{ userName$ | async }}</p>
+        <p><strong>Authenticated:</strong> {{ (isAuthenticated$ | async) ? 'Yes' : 'No' }}</p>
+        <p><strong>Admin:</strong> {{ (isAdmin$ | async) ? 'Yes' : 'No' }}</p>
+        <p><strong>Groups:</strong></p>
         <ul>
         @for (group of (groups$ | async); track group) {
             <li>{{ group }}</li>

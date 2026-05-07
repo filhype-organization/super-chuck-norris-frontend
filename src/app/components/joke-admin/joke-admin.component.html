@@ -15,8 +15,8 @@
         <span class="admin-badge">
           <i class="bi bi-shield-fill-check me-1"></i>ADMINISTRATION
         </span>
-        <h1 class="admin-hero__title">Gestion des Blagues</h1>
-        <p class="admin-hero__subtitle">L'arsenal comique de Chuck Norris, sous votre contrôle</p>
+        <h1 class="admin-hero__title">Joke Management</h1>
+        <p class="admin-hero__subtitle">Chuck Norris's comedy arsenal, under your control</p>
       </div>
       <div class="admin-hero__stats">
         <div class="stat-card">
@@ -29,7 +29,7 @@
         </div>
         <div class="stat-card stat-card--highlight">
           <span class="stat-card__number">{{ filteredJokes().length }}</span>
-          <span class="stat-card__label">Affichées</span>
+          <span class="stat-card__label">Shown</span>
         </div>
       </div>
     </div>
@@ -47,12 +47,12 @@
         <input
           type="text"
           class="admin-search-input"
-          placeholder="Rechercher dans les blagues..."
+          placeholder="Search jokes..."
           [value]="filterText()"
           (input)="updateFilterText($event)"
         />
         @if (filterText()) {
-          <button class="search-clear" (click)="clearFilter()" aria-label="Effacer la recherche">
+          <button class="search-clear" (click)="clearFilter()" aria-label="Clear search">
             <i class="bi bi-x-lg"></i>
           </button>
         }
@@ -60,7 +60,7 @@
     </div>
     <div class="admin-toolbar__actions">
       <div class="page-size-control">
-        <label for="pageSize">Par page</label>
+        <label for="pageSize">Per page</label>
         <select
           id="pageSize"
           class="admin-select"
@@ -74,7 +74,7 @@
       </div>
       <button class="btn-add-joke" (click)="openAddModal()">
         <i class="bi bi-plus-lg me-2"></i>
-        Nouvelle blague
+        New joke
       </button>
     </div>
   </div>
@@ -83,7 +83,7 @@
   @if (jokeService.loading()) {
     <div class="loading-state">
       <div class="loading-spinner"></div>
-      <span>Chargement en cours...</span>
+      <span>Loading...</span>
     </div>
   }
 
@@ -102,8 +102,8 @@
         <thead>
           <tr>
             <th class="col-num">#</th>
-            <th>Blague</th>
-            <th class="col-date">Créée le</th>
+            <th>Joke</th>
+            <th class="col-date">Created</th>
             <th class="col-actions">Actions</th>
           </tr>
         </thead>
@@ -123,10 +123,10 @@
               </td>
               <td class="col-actions">
                 <div class="action-buttons">
-                  <button class="btn-action btn-edit" (click)="openEditModal(joke)" title="Modifier">
+                  <button class="btn-action btn-edit" (click)="openEditModal(joke)" title="Edit">
                     <i class="bi bi-pencil-fill"></i>
                   </button>
-                  <button class="btn-action btn-delete" (click)="requestDelete(joke)" title="Supprimer">
+                  <button class="btn-action btn-delete" (click)="requestDelete(joke)" title="Delete">
                     <i class="bi bi-trash3-fill"></i>
                   </button>
                 </div>
@@ -142,14 +142,14 @@
       <div class="pagination-wrapper">
         <span class="pagination-info">
           Page <strong>{{ jokeService.currentPage() + 1 }}</strong> sur <strong>{{ jokeService.totalPages() }}</strong>
-          &nbsp;·&nbsp; {{ jokeService.totalJokes() }} blagues au total
+          &nbsp;·&nbsp; {{ jokeService.totalJokes() }} jokes total
         </span>
-        <nav class="admin-pagination" aria-label="Navigation entre les pages">
+        <nav class="admin-pagination" aria-label="Page navigation">
           <button
             class="page-btn page-btn--nav"
             (click)="goToPreviousPage()"
             [disabled]="!jokeService.hasPreviousPage()"
-            aria-label="Page précédente">
+            aria-label="Previous page">
             <i class="bi bi-chevron-left"></i>
           </button>
           @for (pageNum of getPageNumbers(); track pageNum) {
@@ -165,7 +165,7 @@
             class="page-btn page-btn--nav"
             (click)="goToNextPage()"
             [disabled]="!jokeService.hasNextPage()"
-            aria-label="Page suivante">
+            aria-label="Next page">
             <i class="bi bi-chevron-right"></i>
           </button>
         </nav>
@@ -173,32 +173,30 @@
     }
   }
 
-  <!-- Empty state: aucune blague -->
   @if (!jokeService.loading() && jokeService.jokes().length === 0 && !jokeService.error()) {
     <div class="empty-state">
       <div class="empty-state__icon">
         <i class="bi bi-emoji-laughing"></i>
       </div>
-      <h3>Aucune blague pour le moment</h3>
-      <p>Commencez par ajouter la première blague de l'arsenal Chuck Norris !</p>
+      <h3>No jokes yet</h3>
+      <p>Start by adding the first joke to Chuck Norris's arsenal!</p>
       <button class="btn-add-joke" (click)="openAddModal()">
         <i class="bi bi-plus-lg me-2"></i>
-        Ajouter une blague
+        Add a joke
       </button>
     </div>
   }
 
-  <!-- Empty state: filtre sans résultat -->
   @if (!jokeService.loading() && jokeService.jokes().length > 0 && filteredJokes().length === 0) {
     <div class="empty-state empty-state--filter">
       <div class="empty-state__icon">
         <i class="bi bi-search"></i>
       </div>
-      <h3>Aucun résultat</h3>
-      <p>Aucune blague ne correspond à "<strong>{{ filterText() }}</strong>"</p>
+      <h3>No results</h3>
+      <p>No joke matches "<strong>{{ filterText() }}</strong>"</p>
       <button class="btn-outline" (click)="clearFilter()">
         <i class="bi bi-x-circle me-2"></i>
-        Effacer le filtre
+        Clear filter
       </button>
     </div>
   }
@@ -216,14 +214,14 @@
           </div>
           <div>
             <h2 class="admin-modal__title">
-              {{ isEditing() ? 'Modifier la blague' : 'Nouvelle blague' }}
+              {{ isEditing() ? 'Edit joke' : 'New joke' }}
             </h2>
             <p class="admin-modal__subtitle">
-              {{ isEditing() ? 'Modifiez le texte de la blague sélectionnée' : 'Saisissez une nouvelle blague Chuck Norris' }}
+              {{ isEditing() ? 'Edit the selected joke text' : 'Enter a new Chuck Norris joke' }}
             </p>
           </div>
         </div>
-        <button class="modal-close" (click)="closeModal()" aria-label="Fermer">
+        <button class="modal-close" (click)="closeModal()" aria-label="Close">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -231,7 +229,7 @@
       <div class="admin-modal__body">
         <div class="form-field">
           <label for="jokeText" class="form-field__label">
-            Texte de la blague <span class="required">*</span>
+            Joke text <span class="required">*</span>
           </label>
           <textarea
             id="jokeText"
@@ -240,11 +238,11 @@
             rows="5"
             [value]="jokeText()"
             (input)="updateJokeText($event)"
-            placeholder="Chuck Norris peut compter jusqu'à l'infini... deux fois."
+            placeholder="Chuck Norris can count to infinity... twice."
             required>
           </textarea>
           <div class="form-field__footer">
-            <span class="char-hint">Soyez créatif et mémorable !</span>
+            <span class="char-hint">Be creative and memorable!</span>
             <span
               class="char-count"
               [class.char-count--warning]="charCount() > maxChars * 0.8"
@@ -256,13 +254,13 @@
       </div>
 
       <div class="admin-modal__footer">
-        <button class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
         <button
           class="btn-save"
           (click)="saveJoke()"
           [disabled]="!jokeText().trim() || charCount() > maxChars">
           <i class="bi me-2" [class.bi-check-lg]="isEditing()" [class.bi-plus-lg]="!isEditing()"></i>
-          {{ isEditing() ? 'Enregistrer' : 'Ajouter' }}
+          {{ isEditing() ? 'Save' : 'Add' }}
         </button>
       </div>
     </div>
@@ -276,19 +274,19 @@
       <div class="confirm-dialog__icon">
         <i class="bi bi-exclamation-triangle-fill"></i>
       </div>
-      <h3 class="confirm-dialog__title">Supprimer cette blague ?</h3>
+      <h3 class="confirm-dialog__title">Delete this joke?</h3>
       <p class="confirm-dialog__body">
-        Cette action est irréversible. La blague sera définitivement retirée de l'arsenal.
+        This action is irreversible. The joke will be permanently removed from the arsenal.
       </p>
       <div class="confirm-dialog__preview">
         <i class="bi bi-quote me-1"></i>
         {{ jokeToDelete()!.joke }}
       </div>
       <div class="confirm-dialog__actions">
-        <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-cancel" (click)="cancelDelete()">Cancel</button>
         <button class="btn-danger" (click)="confirmDelete()">
           <i class="bi bi-trash3-fill me-2"></i>
-          Supprimer
+          Delete
         </button>
       </div>
     </div>

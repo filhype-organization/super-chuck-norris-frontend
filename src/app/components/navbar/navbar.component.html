@@ -1,10 +1,10 @@
 <header>
-  <nav class="site-nav" aria-label="Navigation principale">
+  <nav class="site-nav" aria-label="Main navigation">
     <div class="container-xxl">
       <div class="site-nav__inner">
 
         <!-- Brand -->
-        <a class="site-nav__brand" routerLink="/" aria-label="Chuck Norris Facts - Accueil">
+        <a class="site-nav__brand" routerLink="/" aria-label="Chuck Norris Facts - Home">
           <img
             src="chuck-logo.png"
             width="52"
@@ -32,7 +32,7 @@
           <li>
             <a class="site-nav__link" routerLink="/admin-protected">
               <i class="bi bi-person-circle me-1"></i>
-              Mon profil
+              My Profile
             </a>
           </li>
         </ul>
@@ -50,18 +50,18 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end user-dropdown">
                 <li class="user-dropdown__header">
-                  <span class="user-dropdown__label">Connecté en tant que</span>
+                  <span class="user-dropdown__label">Logged in as</span>
                   <strong class="user-dropdown__name">{{ userName$ | async }}</strong>
                   @if (isAdmin$ | async) {
                     <span class="user-dropdown__admin-badge">
-                      <i class="bi bi-shield-fill-check me-1"></i>Administrateur
+                      <i class="bi bi-shield-fill-check me-1"></i>Administrator
                     </span>
                   }
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <button class="dropdown-item user-dropdown__logout" type="button" (click)="logout()">
-                    <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                    <i class="bi bi-box-arrow-right me-2"></i>Log out
                   </button>
                 </li>
               </ul>
@@ -69,7 +69,7 @@
           } @else {
             <button class="btn-login" type="button" (click)="login()">
               <i class="bi bi-person-fill me-2"></i>
-              Se connecter
+              Log in
             </button>
           }
         </div>

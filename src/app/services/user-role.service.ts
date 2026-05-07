@@ -53,7 +53,7 @@ export class UserRoleService {
                     actualUserData?.preferred_username ||
                     actualUserData?.name ||
                     actualUserData?.email ||
-                    'Utilisateur';
+                    'User';
 
     const groups = this.extractGroups(actualUserData);
     const isAdmin = this.checkAdminRole(actualUserData, groups);

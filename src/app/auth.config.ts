@@ -1,6 +1,6 @@
 import { OpenIdConfiguration, LogLevel } from 'angular-auth-oidc-client';
 
-// Fonction utilitaire pour accéder aux variables d'environnement de manière sécurisée
+
 function getEnvVar(key: string, defaultValue: string): string {
   const ngxEnv = (globalThis as any)?._NGX_ENV_;
   return ngxEnv?.[key] || import.meta.env[key] || defaultValue;

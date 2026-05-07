@@ -74,7 +74,7 @@ describe('JokeService', () => {
 
     service.getRandomJoke();
 
-    expect(service.error()).toBe('Erreur lors du chargement de la blague');
+    expect(service.error()).toBe('Error loading joke');
     expect(service.loading()).toBeFalsy();
   });
 

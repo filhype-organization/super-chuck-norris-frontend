@@ -71,11 +71,11 @@ export class JokeAdminComponent implements OnInit {
       const editingJoke = this.editingJoke();
       if (editingJoke?.id !== null && editingJoke?.id !== undefined) {
         this.jokeService.updateJoke(editingJoke.id, joke);
-        this.showToast('Blague modifiée avec succès !');
+        this.showToast('Joke updated successfully!');
       }
     } else {
       this.jokeService.createJoke(joke);
-      this.showToast('Blague ajoutée avec succès !');
+      this.showToast('Joke added successfully!');
     }
 
     this.closeModal();
@@ -89,7 +89,7 @@ export class JokeAdminComponent implements OnInit {
     const joke = this.jokeToDelete();
     if (joke?.id !== null && joke?.id !== undefined) {
       this.jokeService.deleteJoke(joke.id);
-      this.showToast('Blague supprimée avec succès !');
+      this.showToast('Joke deleted successfully!');
     }
     this.jokeToDelete.set(null);
   }

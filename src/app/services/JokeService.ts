@@ -38,7 +38,7 @@ export class JokeService {
       }),
       catchError((error) => {
         console.error('Error getting random joke:', error);
-        this.#error.set('Erreur lors du chargement de la blague');
+        this.#error.set('Error loading joke');
         this.#loading.set(false);
         return of(null);
       })
@@ -52,7 +52,7 @@ export class JokeService {
     this.#loading.set(true);
     this.#error.set(null);
     
-    // Récupérer les blagues avec le total dans le header
+    
     this.#jokeAPI.getAllJokes(this.#currentPage(), this.#pageSize()).pipe(
       tap(({ jokes, total }) => {
         this.#jokes.set(jokes);
@@ -61,7 +61,7 @@ export class JokeService {
       }),
       catchError((error) => {
         console.error('Error getting jokes:', error);
-        this.#error.set('Erreur lors du chargement des blagues');
+        this.#error.set('Error loading jokes');
         this.#loading.set(false);
         return of({ jokes: [], total: 0 });
       })
@@ -97,12 +97,12 @@ export class JokeService {
     this.#error.set(null);
     this.#jokeAPI.createJoke(joke).pipe(
       tap((newJoke: Joke) => {
-        // Recharger la liste complète après création
+        
         this.getAllJokes();
       }),
       catchError((error) => {
         console.error('Error creating joke:', error);
-        this.#error.set('Erreur lors de la création de la blague');
+        this.#error.set('Error creating joke');
         this.#loading.set(false);
         return of(null);
       })
@@ -125,7 +125,7 @@ export class JokeService {
       }),
       catchError((error) => {
         console.error('Error updating joke:', error);
-        this.#error.set('Erreur lors de la mise à jour de la blague');
+        this.#error.set('Error updating joke');
         this.#loading.set(false);
         return of(null);
       })
@@ -137,12 +137,12 @@ export class JokeService {
     this.#error.set(null);
     this.#jokeAPI.deleteJoke(id).pipe(
       tap(() => {
-        // Recharger la liste complète après suppression pour mettre à jour le total
+        
         this.getAllJokes();
       }),
       catchError((error) => {
         console.error('Error deleting joke:', error);
-        this.#error.set('Erreur lors de la suppression de la blague');
+        this.#error.set('Error deleting joke');
         this.#loading.set(false);
         return of(null);
       })
