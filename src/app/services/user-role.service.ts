@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export interface UserInfo {
   userName: string;
   isAdmin: boolean;
+  isAuthorized: boolean;
   groups: string[];
   isAuthenticated: boolean;
 }
@@ -19,6 +20,7 @@ export class UserRoleService {
   private userInfoSubject = new BehaviorSubject<UserInfo>({
     userName: '',
     isAdmin: false,
+    isAuthorized: false,
     groups: [],
     isAuthenticated: false
   });
@@ -39,7 +41,7 @@ export class UserRoleService {
 
   private extractUserInfo(userData: any, isAuthenticated: boolean): UserInfo {
     if (!userData || !isAuthenticated) {
-      return { userName: '', isAdmin: false, groups: [], isAuthenticated: false };
+      return { userName: '', isAdmin: false, isAuthorized: false, groups: [], isAuthenticated: false };
     }
 
     let actualUserData = userData;
@@ -57,8 +59,9 @@ export class UserRoleService {
 
     const groups = this.extractGroups(actualUserData);
     const isAdmin = this.checkAdminRole(actualUserData, groups);
+    const isAuthorized = isAdmin || groups.includes('user');
 
-    return { userName, isAdmin, groups, isAuthenticated };
+    return { userName, isAdmin, isAuthorized, groups, isAuthenticated };
   }
 
   private extractGroups(userData: any): string[] {
