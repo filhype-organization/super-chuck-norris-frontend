@@ -30,11 +30,12 @@ export class UserRoleService {
   constructor() {
     combineLatest([
       this.oidcSecurityService.isAuthenticated$,
-      this.oidcSecurityService.userData$
+      this.oidcSecurityService.userData$,
+      this.oidcSecurityService.getAccessToken()
     ]).pipe(
       takeUntilDestroyed()
-    ).subscribe(([authResult, userData]) => {
-      const accessTokenPayload = this.decodeJwtPayload(this.oidcSecurityService.getAccessToken());
+    ).subscribe(([authResult, userData, accessToken]) => {
+      const accessTokenPayload = this.decodeJwtPayload(accessToken);
       const userInfo = this.extractUserInfo(userData, authResult.isAuthenticated, accessTokenPayload);
       this.userInfoSubject.next(userInfo);
     });
